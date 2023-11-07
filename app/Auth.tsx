@@ -11,7 +11,7 @@ export default function Auth({ navigation }) {
   const signIn = async () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigation.navigate('Video');
+      navigation.navigate('Join');
     } catch (error) {
       console.error(error);
     }
@@ -20,7 +20,7 @@ export default function Auth({ navigation }) {
   const signUp = async () => {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      navigation.navigate('Video');
+      navigation.navigate('Join');
     } catch (error) {
       console.error(error);
     }
