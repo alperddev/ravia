@@ -3,7 +3,7 @@ import { combineReducers, createStore } from 'redux'
 export type RootState = {
   roomId: string
   userId: string
-  keys: string[]
+  email: string
   randomness: number
   maxTokens: number
   comment: string
@@ -14,7 +14,7 @@ export type RootState = {
 const initialState: RootState = {
   roomId: '',
   userId: '',
-  keys: [],
+  email: '',
   randomness: 1,
   maxTokens: 200,
   comment: '',
@@ -35,7 +35,7 @@ const createReducer =
 const rootReducer = combineReducers({
   roomId: createReducer('roomId', initialState.roomId),
   userId: createReducer('userId', initialState.userId),
-  keys: createReducer('keys', initialState.keys),
+  keys: createReducer('keys', initialState.email),
   randomness: createReducer('randomness', initialState.randomness),
   maxTokens: createReducer('maxTokens', initialState.maxTokens),
   comment: createReducer('comment', initialState.comment),
