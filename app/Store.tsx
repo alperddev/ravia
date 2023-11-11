@@ -4,7 +4,7 @@ export type RootState = {
   roomId: string
   userId: string
   email: string
-  randomness: number
+  firstPage: string
   maxTokens: number
   comment: string
   script: string
@@ -15,7 +15,7 @@ const initialState: RootState = {
   roomId: '',
   userId: '',
   email: '',
-  randomness: 1,
+  firstPage: 'Auth',
   maxTokens: 200,
   comment: '',
   script: '',
@@ -35,8 +35,8 @@ const createReducer =
 const rootReducer = combineReducers({
   roomId: createReducer('roomId', initialState.roomId),
   userId: createReducer('userId', initialState.userId),
-  keys: createReducer('keys', initialState.email),
-  randomness: createReducer('randomness', initialState.randomness),
+  email: createReducer('keys', initialState.email),
+  firstPage: createReducer('randomness', initialState.firstPage),
   maxTokens: createReducer('maxTokens', initialState.maxTokens),
   comment: createReducer('comment', initialState.comment),
   script: createReducer('script', initialState.script),

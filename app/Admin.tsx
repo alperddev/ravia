@@ -1,11 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { View, Text, TextInput } from 'react-native'
 import YoutubePlayer from 'react-native-youtube-iframe'
-import { FIREBASE_DB } from '../firebaseConfig'
 import { ref, set } from 'firebase/database'
 import { useSelector } from 'react-redux'
 import { RootState } from './Store'
-
+import { db } from '../firebaseConfig'
 export default function Admin() {
   const playerRef = useRef(null)
   const [currentTime, setCurrentTime] = useState(0)
@@ -16,7 +15,7 @@ export default function Admin() {
   const [videoId, setVideoId] = useState('')
   const roomId = useSelector((state: RootState) => state.roomId)
   useEffect(() => {
-    const currentTimeRef = ref(FIREBASE_DB, `rooms/${roomId}/currentTime`)
+    const currentTimeRef = ref(db, `rooms/${roomId}/currentTime`)
     const interval = setInterval(async () => {
       const time = await playerRef.current.getCurrentTime()
       setCurrentTime(time)
@@ -25,11 +24,11 @@ export default function Admin() {
     return () => clearInterval(interval)
   })
   useEffect(() => {
-    const videoIdRef = ref(FIREBASE_DB, `rooms/${roomId}/videoId`)
+    const videoIdRef = ref(db, `rooms/${roomId}/videoId`)
     set(videoIdRef, videoId)
   })
   const onStateChange = async (state) => {
-    const playStatusRef = ref(FIREBASE_DB, `rooms/${roomId}/playStatus`)
+    const playStatusRef = ref(db, `rooms/${roomId}/playStatus`)
     if (state === 'playing') {
       setPlaying(true)
       set(playStatusRef, true)

@@ -2,6 +2,7 @@
   "expo": {
     "name": "ravia",
     "slug": "ravia",
+    "scheme": "ravia",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -11,7 +12,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true
     },
@@ -19,16 +22,10 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      },
-      "package": "com.alperdedeoglu.ravia"
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    },
-    "extra": {
-      "eas": {
-        "projectId": "b534b3f4-193d-4fd4-a5a3-573b5fe428ef"
-      }
     }
   }
 }
