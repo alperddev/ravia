@@ -1,11 +1,29 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { View, Text, TextInput } from 'react-native'
+import {
+  View,
+  Text,
+  TextInput,
+  FlatList,
+  Button,
+  Image,
+  ImageBackground,
+} from 'react-native'
 import YoutubePlayer from 'react-native-youtube-iframe'
-import { ref, set } from 'firebase/database'
+import { get, onValue, push, ref, set } from 'firebase/database'
 import { useSelector } from 'react-redux'
 import { RootState } from './Store'
-import { db } from '../firebaseConfig'
+import { auth, db } from '../firebaseConfig'
+import { getStorage, ref as storageRef, getDownloadURL } from 'firebase/storage'
+
 export default function Admin() {
+  const [imageUrl, setImageUrl] = useState(null)
+  const username = auth.currentUser?.displayName
+  const roomId = useSelector((state: RootState) => state.roomId)
+  const [users, setUsers] = useState([])
+
+  const [messages, setMessages] = useState([])
+  const [newMessage, setNewMessage] = useState('')
+
   const playerRef = useRef(null)
   const [currentTime, setCurrentTime] = useState(0)
   const [playing, setPlaying] = useState(false)
@@ -13,7 +31,41 @@ export default function Admin() {
     'https://www.youtube.com/watch?v=iee2TATGMyI'
   )
   const [videoId, setVideoId] = useState('')
-  const roomId = useSelector((state: RootState) => state.roomId)
+
+  useEffect(() => {
+    if (roomId && auth.currentUser) {
+      const adminRef = ref(
+        db,
+        `rooms/${roomId}/users/admins/${auth.currentUser.uid}`
+      )
+      set(adminRef, true)
+    }
+  }, [roomId])
+
+  useEffect(() => {
+    if (roomId) {
+      const adminsRef = ref(db, `rooms/${roomId}/users/admins`)
+      const viewersRef = ref(db, `rooms/${roomId}/users/viewers`)
+
+      const fetchUsers = async () => {
+        const adminsSnapshot = await get(adminsRef)
+        const viewersSnapshot = await get(viewersRef)
+
+        const admins = adminsSnapshot.val() || {}
+        const viewers = viewersSnapshot.val() || {}
+
+        console.log('Admins:', admins)
+        console.log('Viewers:', viewers)
+
+        const users = [...Object.values(admins), ...Object.values(viewers)]
+        console.log('Users:', users)
+        setUsers(users)
+      }
+
+      fetchUsers()
+    }
+  }, [roomId])
+
   useEffect(() => {
     const currentTimeRef = ref(db, `rooms/${roomId}/currentTime`)
     const interval = setInterval(async () => {
@@ -22,11 +74,13 @@ export default function Admin() {
       set(currentTimeRef, currentTime)
     }, 1000)
     return () => clearInterval(interval)
-  })
+  }, [roomId, currentTime])
+
   useEffect(() => {
     const videoIdRef = ref(db, `rooms/${roomId}/videoId`)
     set(videoIdRef, videoId)
-  })
+  }, [roomId, videoId])
+
   const onStateChange = async (state) => {
     const playStatusRef = ref(db, `rooms/${roomId}/playStatus`)
     if (state === 'playing') {
@@ -37,6 +91,7 @@ export default function Admin() {
       set(playStatusRef, false)
     }
   }
+
   useEffect(() => {
     const getVideoId = (url) => {
       const urlParts = url.split(/[?&]/)
@@ -52,8 +107,61 @@ export default function Admin() {
     const id = getVideoId(videoUrl)
     setVideoId(id)
   }, [videoUrl])
+
+  useEffect(() => {
+    if (roomId) {
+      const messagesRef = ref(db, `rooms/${roomId}/messages`)
+      const unsubscribe = onValue(messagesRef, (snapshot) => {
+        const data = snapshot.val()
+        if (data) {
+          const items = Object.keys(data).map((key) => ({
+            id: key,
+            ...data[key],
+          }))
+          setMessages(items)
+        }
+      })
+      return () => unsubscribe()
+    }
+  }, [roomId])
+
+  const sendMessage = () => {
+    if (roomId && newMessage) {
+      const messagesRef = ref(db, `rooms/${roomId}/messages`)
+      const newMessageRef = push(messagesRef)
+      set(newMessageRef, {
+        text: newMessage,
+        username: username,
+        photoURL: imageUrl,
+      })
+      setNewMessage('')
+    }
+  }
+
+  useEffect(() => {
+    const storage = getStorage()
+    const gsReference = storageRef(storage, auth.currentUser?.photoURL)
+
+    getDownloadURL(gsReference)
+      .then((url) => {
+        setImageUrl(url)
+      })
+      .catch((error) => {
+        console.error(error)
+      })
+  }, [])
+
   return (
     <View style={{ flex: 1 }}>
+      <View style={{ flexDirection: 'row' }}>
+        {users.map((user, index) => (
+          <ImageBackground
+            key={index}
+            source={{ uri: user.photoURL }}
+            style={{ width: 50, height: 50 }}
+          />
+        ))}
+      </View>
       <YoutubePlayer
         ref={playerRef}
         height={300}
@@ -72,6 +180,31 @@ export default function Admin() {
         style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
         value={roomId}
       />
+      <View style={{ flex: 1 }}>
+        <FlatList
+          data={messages}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={{ marginLeft: 10 }}>
+                <ImageBackground
+                  source={{ uri: item.photoURL }}
+                  style={{ width: 50, height: 50 }}
+                ></ImageBackground>
+                <Text>{item.username}</Text>
+                <Text>{item.text}</Text>
+              </View>
+            </View>
+          )}
+        />
+
+        <TextInput
+          style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
+          onChangeText={(text) => setNewMessage(text)}
+          value={newMessage}
+        />
+        <Button title="Send Message" onPress={sendMessage} />
+      </View>
     </View>
   )
 }

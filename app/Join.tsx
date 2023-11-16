@@ -1,17 +1,34 @@
 import React, { useEffect, useState } from 'react'
-import { View, Button, TextInput, StyleSheet, Text } from 'react-native'
+import {
+  View,
+  Button,
+  TextInput,
+  Text,
+  Image,
+  TouchableOpacity,
+} from 'react-native'
 import { useDispatch } from 'react-redux'
 import { auth } from '../firebaseConfig'
-import { NavigationProp } from '@react-navigation/native'
-import { User, onAuthStateChanged } from 'firebase/auth'
-interface RouterProps {
-  navigation: NavigationProp<any, any>
-}
-export default function Join({ navigation }: RouterProps) {
-  const [user, setUser] = useState<User | null>(null)
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { getStorage, ref, getDownloadURL } from 'firebase/storage'
 
+export default function Join({ navigation }) {
   const [getRoomId, setGetRoomId] = useState('')
+  const [imageUrl, setImageUrl] = useState(null)
   const dispatch = useDispatch()
+  useEffect(() => {
+    const storage = getStorage()
+    const gsReference = ref(storage, auth.currentUser?.photoURL)
+
+    getDownloadURL(gsReference)
+      .then((url) => {
+        setImageUrl(url)
+      })
+      .catch((error) => {
+        console.error(error)
+      })
+  }, [imageUrl])
+
   const generateUniqueID = () => {
     return Math.random().toString(36).substr(2, 3)
   }
@@ -30,20 +47,15 @@ export default function Join({ navigation }: RouterProps) {
     dispatch({ type: 'SET_USERID', userId: newUserId })
     navigation.navigate('Viewer')
   }
+
   const SignOut = () => {
-    auth
-      .signOut()
-      .then(() => {
-        onAuthStateChanged(auth, (user) => {
-          setUser(null)
-        })
-      })
-      .catch((error) => {
-        console.error(error)
-      })
+    auth.signOut().catch((error) => {
+      console.error(error)
+    })
   }
+
   return (
-    <View style={{ flex: 1 }}>
+    <SafeAreaView>
       <Button title="Create Room" onPress={createRoom} />
       <Button title="Join Room" onPress={joinRoom} />
       <TextInput
@@ -52,13 +64,15 @@ export default function Join({ navigation }: RouterProps) {
         value={getRoomId}
         placeholder="Enter room ID"
       />
-      <View >
+      <View>
         <Text>Email: {auth.currentUser?.email}</Text>
-        <Text>Email: {auth.currentUser?.uid }</Text>
+        <Text>Username: {auth.currentUser?.displayName}</Text>
 
+        <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+          <Image source={{ uri: imageUrl }} style={{ width: 50, height: 50 }} />
+        </TouchableOpacity>
         <Button title="Sign Out" onPress={SignOut} />
       </View>
-    </View>
+    </SafeAreaView>
   )
 }
-

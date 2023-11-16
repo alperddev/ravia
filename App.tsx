@@ -1,38 +1,39 @@
-import * as React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Join from './app/Join';
-import { Provider } from 'react-redux';
-import store from './app/Store';
-import Admin from './app/Admin';
-import Viewer from './app/Viewer';
-import { useEffect, useState } from 'react';
-import SignUp from './app/SignUp';
-import SignIn from './app/SignIn';
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from './firebaseConfig';
-const Stack = createNativeStackNavigator();
+import * as React from 'react'
+import { NavigationContainer } from '@react-navigation/native'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import Join from './app/Join'
+import { Provider } from 'react-redux'
+import store from './app/Store'
+import Admin from './app/Admin'
+import Viewer from './app/Viewer'
+import { useEffect, useState } from 'react'
+import SignUp from './app/SignUp'
+import SignIn from './app/SignIn'
+import { onAuthStateChanged } from 'firebase/auth'
+import { auth } from './firebaseConfig'
+import Profile from './app/Profile'
+const Stack = createNativeStackNavigator()
 
 export default function App() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null)
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         if (user.emailVerified) {
-          console.log('User is signed in and email is verified.');
-          setUser(user);
+          console.log('User is signed in and email is verified.')
+          setUser(user)
         } else {
-          console.log('User is signed in but email is not verified.');
-          setUser(null);
+          console.log('User is signed in but email is not verified.')
+          setUser(null)
         }
       } else {
-        console.log('User is signed out.');
-        setUser(null);
+        console.log('User is signed out.')
+        setUser(null)
       }
-    });
-  
-    return () => unsubscribe();
-  }, []);
+    })
+
+    return () => unsubscribe()
+  }, [])
   return (
     <Provider store={store}>
       <NavigationContainer>
@@ -41,11 +42,13 @@ export default function App() {
             headerTintColor: 'black',
             headerStyle: {},
             headerTitleAlign: 'center',
+            headerShown: false,
           }}
         >
           {user ? (
             <>
               <Stack.Screen name="Join" component={Join} />
+              <Stack.Screen name="Profile" component={Profile} />
               <Stack.Screen name="Admin" component={Admin} />
               <Stack.Screen name="Viewer" component={Viewer} />
             </>
@@ -58,5 +61,5 @@ export default function App() {
         </Stack.Navigator>
       </NavigationContainer>
     </Provider>
-  );
+  )
 }
