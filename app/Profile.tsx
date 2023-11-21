@@ -1,13 +1,7 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { View, Button, Text, Image, TextInput, Alert } from 'react-native'
 import { auth, fs } from '../firebaseConfig'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import {
-  getStorage,
-  ref,
-  getDownloadURL,
-  uploadBytesResumable,
-} from 'firebase/storage'
 import {
   EmailAuthProvider,
   reauthenticateWithCredential,
@@ -15,7 +9,9 @@ import {
   updateProfile,
 } from 'firebase/auth'
 import * as ImagePicker from 'expo-image-picker'
-import { doc, getDoc, setDoc } from 'firebase/firestore'
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+
 
 export default function Profile({ navigation }) {
   const [imageUrl, setImageUrl] = useState(null)
@@ -23,72 +19,45 @@ export default function Profile({ navigation }) {
   const [username, setUsername] = useState(auth.currentUser?.displayName)
   const [password, setPassword] = useState('')
   const [currentPassword, setCurrentPassword] = useState('')
-  React.useEffect(() => {
-    const gsReference = ref(storage, auth.currentUser?.photoURL)
-
-    getDownloadURL(gsReference)
-      .then((url) => {
-        setImageUrl(url)
-      })
-      .catch((error) => {
-        console.error(error)
-      })
-  }, [])
-
-  const uploadImage = async (uri) => {
-    const response = await fetch(uri)
-    const blob = await response.blob()
-    const storageRef = ref(storage, `images/${auth.currentUser.uid}`)
-    const uploadTask = uploadBytesResumable(storageRef, blob)
-
-    uploadTask.on(
-      'state_changed',
-      (snapshot) => {},
-      (error) => {
-        console.error(error)
-      },
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          updateProfile(auth.currentUser, {
-            photoURL: downloadURL,
-          })
-          setImageUrl(downloadURL)
-        })
-      }
-    )
-  }
-  const pickImage = async () => {
+  const uploadImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
       aspect: [1, 1],
       quality: 1,
-    })
-
+    });
+  
     if (!result.canceled) {
-      const { assets } = result
-      if (assets && assets.length > 0) {
-        const { uri } = assets[0]
-        uploadImage(uri)
-      }
+      const response = await fetch(result.assets[0].uri);
+      const blob = await response.blob();
+      const storage = getStorage();
+      const storageRef = ref(storage, `users/${auth.currentUser.uid}/pp`);
+      await uploadBytes(storageRef, blob);
+      const url = await getDownloadURL(storageRef);
+      const userDoc = doc(fs, `users/${auth.currentUser.uid}`);
+      await updateDoc(userDoc, { pp: url });
+      setImageUrl(url);
     }
-  }
+  };
+  
+  useEffect(() => {
+    const fetchPP = async () => {
+      const docSnap = await getDoc(doc(fs, `users/${auth.currentUser?.uid}`))
+      setImageUrl(docSnap.data().pp)
+    }
 
+    fetchPP()
+  }, [])
+  
   const changeUsername = async () => {
     try {
-      const docRef = doc(fs, 'usernames', username)
-      const docSnap = await getDoc(docRef)
+      const docRef = doc(fs, `users/${auth.currentUser?.uid}`)
 
-      if (docSnap.exists()) {
-        Alert.alert(
-          'This username is already taken. Please choose another one.'
-        )
-      } else {
         await updateProfile(auth.currentUser, {
           displayName: username,
         })
         await setDoc(docRef, { username: username })
-      }
+      
     } catch (error) {
       console.error(error)
       Alert.alert('Error', 'Failed to update username')
@@ -152,11 +121,8 @@ export default function Profile({ navigation }) {
           secureTextEntry
         />
         <Button title="Change Password" onPress={changePassword} />
-
-        {imageUrl && (
-          <Image source={{ uri: imageUrl }} style={{ width: 50, height: 50 }} />
-        )}
-        <Button title="Upload Image" onPress={pickImage} />
+        <Image source={{ uri: imageUrl }} style={{ width: 50, height: 50 }} />
+        <Button title="Upload Profile Picture" onPress={uploadImage} />
       </View>
     </SafeAreaView>
   )

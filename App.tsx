@@ -20,14 +20,11 @@ export default function App() {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         if (user.emailVerified) {
-          console.log('User is signed in and email is verified.')
           setUser(user)
         } else {
-          console.log('User is signed in but email is not verified.')
           setUser(null)
         }
       } else {
-        console.log('User is signed out.')
         setUser(null)
       }
     })

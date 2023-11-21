@@ -6,28 +6,26 @@ import {
   Text,
   Image,
   TouchableOpacity,
+  Alert,
 } from 'react-native'
 import { useDispatch } from 'react-redux'
-import { auth } from '../firebaseConfig'
+import { auth, db, fs } from '../firebaseConfig'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { getStorage, ref, getDownloadURL } from 'firebase/storage'
+import { doc, getDoc } from 'firebase/firestore'
+import { get, ref } from 'firebase/database'
 
 export default function Join({ navigation }) {
   const [getRoomId, setGetRoomId] = useState('')
   const [imageUrl, setImageUrl] = useState(null)
   const dispatch = useDispatch()
   useEffect(() => {
-    const storage = getStorage()
-    const gsReference = ref(storage, auth.currentUser?.photoURL)
+    const fetchPP = async () => {
+      const docSnap = await getDoc(doc(fs, `users/${auth.currentUser?.uid}`))
+      setImageUrl(docSnap.data().pp)
+    }
 
-    getDownloadURL(gsReference)
-      .then((url) => {
-        setImageUrl(url)
-      })
-      .catch((error) => {
-        console.error(error)
-      })
-  }, [imageUrl])
+    fetchPP()
+  }, [])
 
   const generateUniqueID = () => {
     return Math.random().toString(36).substr(2, 3)
@@ -35,18 +33,23 @@ export default function Join({ navigation }) {
 
   const createRoom = () => {
     const newRoomId = generateUniqueID()
-    const newUserId = generateUniqueID()
     dispatch({ type: 'SET_ROOMID', roomId: newRoomId })
-    dispatch({ type: 'SET_USERID', userId: newUserId })
     navigation.navigate('Admin')
   }
 
-  const joinRoom = () => {
-    const newUserId = generateUniqueID()
+ 
+const joinRoom = async () => {
+  const roomRef = ref(db, `rooms/${getRoomId}`)
+  const snapshot = await get(roomRef)
+
+  if (snapshot.exists()) {
     dispatch({ type: 'SET_ROOMID', roomId: getRoomId })
-    dispatch({ type: 'SET_USERID', userId: newUserId })
     navigation.navigate('Viewer')
+  } else {
+    Alert.alert('Error', 'The room does not exist.')
   }
+}
+
 
   const SignOut = () => {
     auth.signOut().catch((error) => {
@@ -69,7 +72,7 @@ export default function Join({ navigation }) {
         <Text>Username: {auth.currentUser?.displayName}</Text>
 
         <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-          <Image source={{ uri: imageUrl }} style={{ width: 50, height: 50 }} />
+        <Image source={{ uri: imageUrl }} style={{ width: 50, height: 50 }} />
         </TouchableOpacity>
         <Button title="Sign Out" onPress={SignOut} />
       </View>

@@ -12,7 +12,7 @@ export default function SignIn({ navigation }) {
         auth,
         email,
         password
-      )
+      ).then()
       if (!userCredential.user.emailVerified) {
         alert('Please verify your email before signing in.')
         auth.signOut()
