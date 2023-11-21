@@ -18,29 +18,24 @@ export default function UserList() {
   
   useEffect(() => {
     const fetchUsers = async () => {
-      const adminsRef = ref(db, `rooms/${roomId}/users/admins`);
-      const viewersRef = ref(db, `rooms/${roomId}/users/viewers`);
+      const usersRef = ref(db, `rooms/${roomId}/users`);
+      const usersSnapshot = await get(usersRef);
+      const users = usersSnapshot.val() || {};
   
-      const adminsSnapshot = await get(adminsRef);
-      const viewersSnapshot = await get(viewersRef);
+      const fetchedUsers = [];
+      const fetchedPhotoURLs = [];
   
-      const admins = adminsSnapshot.val() || {};
-      const viewers = viewersSnapshot.val() || {};
+      for (const userId in users) {
+        const userDoc = await getDoc(doc(fs, `users/${userId}`));
+        const pp = userDoc.data().pp;
   
-      const fetchedUsers  =  [...Object.values(admins) , ...Object.values(viewers) ];
+        fetchedUsers.push(userId);
+        fetchedPhotoURLs.push(pp && typeof pp === 'string' ? pp : null);
+      }
   
-      const fetchedPhotoURLs = await Promise.all(
-        fetchedUsers.map(async (user) => {
-          const userDoc = await getDoc(doc(fs, `users/${user}`));
-          const pp = userDoc.data().pp;
-          return pp && typeof pp === 'string' ? pp : null;
-        })
-      );
-    
       setUsers(fetchedUsers);
       setPhotoURL(fetchedPhotoURLs);
-    };
-    
+    };  
     fetchUsers();
   }, [roomId, users]);
   
