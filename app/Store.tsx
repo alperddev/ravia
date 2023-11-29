@@ -4,14 +4,12 @@ export type RootState = {
   roomId: string
   userId: string
   email: string
-  
 }
 
 const initialState: RootState = {
   roomId: '',
   userId: '',
   email: '',
- 
 }
 
 const createReducer =

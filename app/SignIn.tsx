@@ -1,8 +1,15 @@
 import React, { useState } from 'react'
-import { Button, KeyboardAvoidingView, TextInput } from 'react-native'
+import {
+  KeyboardAvoidingView,
+  TextInput,
+  TouchableOpacity,
+  Text,
+  BackHandler,
+} from 'react-native'
 import { signInWithEmailAndPassword, getAuth } from 'firebase/auth'
 import { SafeAreaView } from 'react-native-safe-area-context'
-export default function SignIn({ navigation }) {
+import { styles } from '../components/Style'
+export default function SignIn() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const auth = getAuth()
@@ -12,27 +19,38 @@ export default function SignIn({ navigation }) {
         auth,
         email,
         password
-      ).then()
+      ).then( )
       if (!userCredential.user.emailVerified) {
-        alert('Please verify your email before signing in.')
+        alert('Lutfen giris yapmadan once mailini dogrula.')
         auth.signOut()
       }
+
     } catch (error) {
       console.error(error)
     }
   }
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={styles.View}>
       <KeyboardAvoidingView>
-        <TextInput placeholder="Email" onChangeText={setEmail} value={email} />
         <TextInput
-          placeholder="Password"
+          style={styles.TextInput}
+          placeholder="Email"
+          onChangeText={setEmail}
+          value={email}
+          autoCapitalize="none"
+        />
+        <TextInput
+          style={styles.TextInput}
+          placeholder="Sifre"
           onChangeText={setPassword}
           value={password}
           secureTextEntry
+          autoCapitalize="none"
         />
-        <Button title="Sign In" onPress={signIn} />
+        <TouchableOpacity onPress={signIn} style={styles.Button}>
+          <Text style={styles.ButtonText}>Giris Yapin</Text>
+        </TouchableOpacity>
       </KeyboardAvoidingView>
     </SafeAreaView>
   )

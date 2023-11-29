@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import {
   View,
-  Button,
   TextInput,
   Text,
   Image,
@@ -12,7 +11,8 @@ import { useDispatch } from 'react-redux'
 import { auth, db, fs } from '../firebaseConfig'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { doc, getDoc } from 'firebase/firestore'
-import { get, ref, remove, set } from 'firebase/database'
+import { get, ref, set } from 'firebase/database'
+import { styles } from '../components/Style'
 
 export default function Join({ navigation }) {
   const [getRoomId, setGetRoomId] = useState('')
@@ -29,7 +29,7 @@ export default function Join({ navigation }) {
   }, [])
 
   const generateUniqueID = () => {
-    return Math.random().toString(36).substr(2, 3)
+    return Math.random().toString(36).substr(2, 5)
   }
 
   const createRoom = () => {
@@ -38,68 +38,64 @@ export default function Join({ navigation }) {
     navigation.navigate('Admin')
   }
   const joinRoom = async () => {
-    const roomRef = ref(db, `rooms/${getRoomId}`);
-    const snapshot = await get(roomRef);
-  
-    if (snapshot.exists()) {
-      const roomPassword = snapshot.val().password;
-      const bannedUsers = snapshot.val().banned || {};
-      if (bannedUsers[auth.currentUser.uid]) {
-        Alert.alert('Error', 'You are banned from this room.');
-      } else if (roomPassword && roomPassword !== password) {
-        Alert.alert('Error', 'Incorrect password.');
-      } else {
-        dispatch({ type: 'SET_ROOMID', roomId: getRoomId });
+    if (getRoomId === '') {
+      Alert.alert('Hata', 'Oda kodu girilmedi')
+      return
+    }
+    const roomRef = ref(db, `rooms/${getRoomId}`)
+    const snapshot = await get(roomRef)
 
-        const viewerRef = ref(db, `rooms/${getRoomId}/users/${auth.currentUser.uid}`);
-        set(viewerRef, false);
-        
-        navigation.navigate('Viewer');
+    if (snapshot.exists()) {
+      const roomPassword = snapshot.val().password
+      const bannedUsers = snapshot.val().banned || {}
+      if (bannedUsers[auth.currentUser.uid]) {
+        Alert.alert('Hata', 'Bu odadan engellendiniz.')
+      } else if (roomPassword && roomPassword !== password) {
+        Alert.alert('Hata', 'Sifre gecersiz.')
+      } else {
+        dispatch({ type: 'SET_ROOMID', roomId: getRoomId })
+
+        const viewerRef = ref(
+          db,
+          `rooms/${getRoomId}/users/${auth.currentUser.uid}`
+        )
+        set(viewerRef, false)
+        navigation.navigate('Viewer')
       }
     } else {
-      Alert.alert('Error', 'The room does not exist.');
+      Alert.alert('Hata', 'Oda kodu gecersiz')
     }
-  };
-  
-  useEffect(() => {
-    return () => {
-      if (getRoomId && auth.currentUser) {
-        const viewerRef = ref(db, `rooms/${getRoomId}/users/${auth.currentUser.uid}`);
-        remove(viewerRef);
-      }
-    }
-  }, [getRoomId]);
-
-  const SignOut = () => {
-    auth.signOut().catch((error) => {
-      console.error(error)
-    })
   }
 
   return (
-    <SafeAreaView>
-      <Button title="Create Room" onPress={createRoom} />
-      <Button title="Join Room" onPress={joinRoom} />
-      <TextInput
-        style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
-        onChangeText={(text) => setGetRoomId(text)}
-        value={getRoomId}
-        placeholder="Enter room ID"
-      />
-      <TextInput
-        style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
-        onChangeText={(text) => setPassword(text)}
-        value={password}
-        placeholder="Enter password"
-      />
-      <View>
-        <Text>Email: {auth.currentUser?.email}</Text>
-        <Text>Username: {auth.currentUser?.displayName}</Text>
-
+    <SafeAreaView style={styles.View}>
+      <View style={styles.View2}>
         <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-          <Image source={{ uri: imageUrl }} style={{ width: 50, height: 50 }} />
+          <Image source={{ uri: imageUrl }} style={styles.pp} />
         </TouchableOpacity>
-        <Button title="Sign Out" onPress={SignOut} />
+      </View>
+      <View style={styles.View}>
+        <TouchableOpacity onPress={createRoom} style={styles.Button}>
+          <Text style={styles.ButtonText}>Oda Olustur</Text>
+        </TouchableOpacity>
+
+        <TextInput
+          style={styles.TextInput}
+          placeholder="Oda Kodu"
+          onChangeText={(text) => setGetRoomId(text)}
+          value={getRoomId}
+          autoCapitalize="none"
+        />
+        <TextInput
+          style={styles.TextInput}
+          placeholder="Sifre (Sifre yoksa bos birakin)"
+          onChangeText={(text) => setPassword(text)}
+          value={password}
+          autoCapitalize="none"
+        />
+        <TouchableOpacity onPress={joinRoom} style={styles.Button2}>
+          <Text style={styles.ButtonText2}>Odaya Katil</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   )

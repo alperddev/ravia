@@ -12,6 +12,7 @@ import SignIn from './app/SignIn'
 import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from './firebaseConfig'
 import Profile from './app/Profile'
+
 const Stack = createNativeStackNavigator()
 
 export default function App() {
@@ -30,7 +31,7 @@ export default function App() {
     })
 
     return () => unsubscribe()
-  }, [])
+  }, [user])
   return (
     <Provider store={store}>
       <NavigationContainer>
@@ -40,6 +41,9 @@ export default function App() {
             headerStyle: {},
             headerTitleAlign: 'center',
             headerShown: false,
+            statusBarStyle: 'light',
+            statusBarTranslucent: true,
+            navigationBarHidden: true,
           }}
         >
           {user ? (

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { View, Button, Text, Image, TextInput, Alert } from 'react-native'
+import { View, Text, Image, TextInput, Alert, TouchableOpacity } from 'react-native'
 import { auth, fs } from '../firebaseConfig'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import {
@@ -10,12 +10,11 @@ import {
 } from 'firebase/auth'
 import * as ImagePicker from 'expo-image-picker'
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
+import { colorPalette, styles } from '../components/Style'
 
-
-export default function Profile({ navigation }) {
+export default function Profile() {
   const [imageUrl, setImageUrl] = useState(null)
-  const storage = getStorage()
   const [username, setUsername] = useState(auth.currentUser?.displayName)
   const [password, setPassword] = useState('')
   const [currentPassword, setCurrentPassword] = useState('')
@@ -25,21 +24,21 @@ export default function Profile({ navigation }) {
       allowsEditing: true,
       aspect: [1, 1],
       quality: 1,
-    });
-  
+    })
+
     if (!result.canceled) {
-      const response = await fetch(result.assets[0].uri);
-      const blob = await response.blob();
-      const storage = getStorage();
-      const storageRef = ref(storage, `users/${auth.currentUser.uid}/pp`);
-      await uploadBytes(storageRef, blob);
-      const url = await getDownloadURL(storageRef);
-      const userDoc = doc(fs, `users/${auth.currentUser.uid}`);
-      await updateDoc(userDoc, { pp: url });
-      setImageUrl(url);
+      const response = await fetch(result.assets[0].uri)
+      const blob = await response.blob()
+      const storage = getStorage()
+      const storageRef = ref(storage, `users/${auth.currentUser.uid}/pp`)
+      await uploadBytes(storageRef, blob)
+      const url = await getDownloadURL(storageRef)
+      const userDoc = doc(fs, `users/${auth.currentUser.uid}`)
+      await updateDoc(userDoc, { pp: url })
+      setImageUrl(url)
     }
-  };
-  
+  }
+
   useEffect(() => {
     const fetchPP = async () => {
       const docSnap = await getDoc(doc(fs, `users/${auth.currentUser?.uid}`))
@@ -48,25 +47,33 @@ export default function Profile({ navigation }) {
 
     fetchPP()
   }, [])
-  
+
   const changeUsername = async () => {
+    if (username.length < 6) {
+      Alert.alert('Hata', 'Kullanici adi en az 6 karakter olmali')
+      return
+    }
+    if (username.length > 30) {
+      Alert.alert('Hata', 'Kullanici adi en fazla 30 karakter olmali')
+      return
+    }
     try {
       const docRef = doc(fs, `users/${auth.currentUser?.uid}`)
 
-        await updateProfile(auth.currentUser, {
-          displayName: username,
-        })
-        await setDoc(docRef, { username: username })
+      await updateProfile(auth.currentUser, {
+        displayName: username
+      })
+      await updateDoc(docRef, { username: username })
       
     } catch (error) {
       console.error(error)
-      Alert.alert('Error', 'Failed to update username')
+      Alert.alert('Hata', 'Kullanici adini guncelleme basarisiz oldu')
     }
   }
 
   const changePassword = async () => {
     if (password.length < 6) {
-      Alert.alert('Error', 'Password should be at least 6 characters')
+      Alert.alert('Hata', 'Sifre en az 6 karakter olmali')
       return
     }
 
@@ -79,50 +86,69 @@ export default function Profile({ navigation }) {
       .then(() => {
         updatePassword(auth.currentUser, password)
           .then(() => {
-            Alert.alert('Success', 'Password updated successfully')
+            Alert.alert('Basarili', 'Sifre basaiyla guncellendi')
           })
           .catch((error) => {
             console.error(error)
-            Alert.alert('Error', 'Failed to update password')
+            Alert.alert('Hata', 'Sifre guncelleme basarisiz oldu')
           })
       })
       .catch((error) => {
         console.error(error)
         Alert.alert(
-          'Error',
-          'Failed to re-authenticate. Please check your current password.'
+          'Hata',
+          'Sifre onayi basarisiz oldu. Lutfen Sifreni kontrol et.'
         )
       })
   }
 
+  const SignOut = () => {
+    auth.signOut().catch((error) => {
+      console.error(error)
+    })
+  }
+
   return (
-    <SafeAreaView>
+    <SafeAreaView style={styles.View}>
+      <TouchableOpacity onPress={uploadImage}>
+                <Image source={{ uri: imageUrl }} style={styles.pp4} />
+                </TouchableOpacity>
       <View>
-        <Text>Email: {auth.currentUser?.email}</Text>
-        <Text>Username: {auth.currentUser?.displayName}</Text>
+        <Text style={styles.Text5}>Email: {auth.currentUser?.email}</Text>
 
         <TextInput
           value={username}
           onChangeText={setUsername}
-          placeholder="Enter new username"
-        />
-        <Button title="Change Username" onPress={changeUsername} />
-
+          style={styles.TextInput5}
+/>
+        <TouchableOpacity onPress={changeUsername} style={styles.Button4}>
+          <Text style={styles.ButtonText2}>Kullanici adini degistir</Text>
+        </TouchableOpacity>
         <TextInput
           value={currentPassword}
           onChangeText={setCurrentPassword}
-          placeholder="Enter current password"
+          placeholder="Sifreni gir"
           secureTextEntry
+          style={styles.TextInput5}
+          placeholderTextColor={colorPalette.white}
+
+
         />
         <TextInput
           value={password}
           onChangeText={setPassword}
-          placeholder="Enter new password"
+          placeholder="Yeni sifreni gir"
           secureTextEntry
+          style={styles.TextInput5}
+          placeholderTextColor={colorPalette.white}
+
         />
-        <Button title="Change Password" onPress={changePassword} />
-        <Image source={{ uri: imageUrl }} style={{ width: 50, height: 50 }} />
-        <Button title="Upload Profile Picture" onPress={uploadImage} />
+                <TouchableOpacity onPress={changePassword} style={styles.Button4}>
+          <Text style={styles.ButtonText2}>Sifreni degistir</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={SignOut} style={styles.Button5}>
+          <Text style={styles.ButtonText}>Cikis yap</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   )

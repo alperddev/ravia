@@ -1,14 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react'
-import {
-  View,
-  Text,
-  TextInput,
-} from 'react-native'
+import { View, Text, Dimensions } from 'react-native'
 import YoutubePlayer from 'react-native-youtube-iframe'
 import { useSelector } from 'react-redux'
 import { RootState } from '../app/Store'
-import {  onValue, ref} from 'firebase/database'
-import { db} from '../firebaseConfig'
+import { onValue, ref } from 'firebase/database'
+import { db } from '../firebaseConfig'
+import { styles } from './Style'
 export default function ViewerPlayer() {
   const playerRef = useRef(null)
   const [currentTime, setCurrentTime] = useState(0)
@@ -16,7 +13,18 @@ export default function ViewerPlayer() {
   const [playing, setPlaying] = useState(false)
   const [videoId, setVideoId] = useState('')
   const roomId = useSelector((state: RootState) => state.roomId)
+  const windowWidth = Dimensions.get('window').width - 5
+  const windowHeight = windowWidth * (9 / 16)
 
+  const [isVideoIdValid, setVideoIdValid] = useState(false)
+
+  useEffect(() => {
+    if (!videoId) {
+      setVideoIdValid(true)
+    } else {
+      setVideoIdValid(false)
+    }
+  }, [videoId])
 
   useEffect(() => {
     if (Number(Math.abs(currentTimeDB - currentTime)) > Number(2)) {
@@ -51,17 +59,30 @@ export default function ViewerPlayer() {
   }, [playing])
 
   return (
-    <View style={{ flex: 1 }}>
+    <View
+      style={{
+        alignSelf: 'center',
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingTop: 10,
+      }}
+    >
+      <View
+        style={[
+          { height: windowHeight, width: windowWidth },
+          styles.video0,
+          isVideoIdValid ? styles.open : styles.closed,
+        ]}
+      >
+        <Text style={styles.Text4}>Video Bekleniyor</Text>
+      </View>
+
       <YoutubePlayer
         ref={playerRef}
-        height={250}
+        height={windowHeight}
+        width={windowWidth}
         play={playing}
         videoId={videoId}
-      />
-                  <TextInput
-        editable={false}
-        style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
-        value={roomId}
       />
     </View>
   )

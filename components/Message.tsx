@@ -1,20 +1,21 @@
-import React, { useState, useEffect} from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   View,
   Text,
   FlatList,
-  Button,
   TextInput,
-  ImageBackground,
   Image,
+  TouchableOpacity,
 } from 'react-native'
 import { useSelector } from 'react-redux'
 import { RootState } from '../app/Store'
-import {onValue, push, ref, set } from 'firebase/database'
+import { onValue, push, ref, set } from 'firebase/database'
 import { auth, db, fs } from '../firebaseConfig'
 import { doc, getDoc } from 'firebase/firestore'
-export default function Message() {
+import { styles, colorPalette } from './Style'
+import { Ionicons } from '@expo/vector-icons'
 
+export default function Message() {
   const [imageUrl, setImageUrl] = useState(null)
 
   const username = auth.currentUser?.displayName
@@ -23,10 +24,6 @@ export default function Message() {
   const [newMessage, setNewMessage] = useState('')
 
   const roomId = useSelector((state: RootState) => state.roomId)
-
-
-
-
 
   useEffect(() => {
     if (roomId) {
@@ -66,34 +63,56 @@ export default function Message() {
     fetchPP()
   }, [])
 
-
   return (
-    <View >
-
-
-        <FlatList
-          data={messages}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <View style={{ marginLeft: 10 }}>
-                <ImageBackground
-                  source={{ uri: item.photoURL }}
-                  style={{ width: 50, height: 50 }}
-                ></ImageBackground>
-                <Text>{item.username}</Text>
-                <Text>{item.text}</Text>
-              </View>
+    <View style={{ flex: 1, paddingTop: 20 }}>
+      <FlatList
+        data={messages}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              paddingBottom: 20,
+              paddingLeft: 10,
+            }}
+          >
+            <Image source={{ uri: item.photoURL }} style={styles.pp2}></Image>
+            <View style={{ paddingLeft: 10 }}>
+              <Text style={{ color: colorPalette.pink }}>{item.username}</Text>
+              <Text style={{ color: colorPalette.white, marginRight: 60 }}>
+                {item.text}
+              </Text>
             </View>
-          )}
-        />
-
+          </View>
+        )}
+      />
+      <View
+        style={{
+          alignSelf: 'center',
+          alignContent: 'center',
+          justifyContent: 'center',
+        }}
+      >
         <TextInput
-          style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
+          style={styles.TextInput2}
+          placeholder="..."
+          placeholderTextColor={colorPalette.white}
           onChangeText={(text) => setNewMessage(text)}
           value={newMessage}
         />
-        <Button title="Send Message" onPress={sendMessage} />
+        <TouchableOpacity
+          style={{
+            position: 'absolute',
+            alignSelf: 'flex-end',
+            paddingRight: 10,
+            paddingBottom: 20,
+          }}
+          onPress={sendMessage}
+        >
+          <Ionicons name="ios-send" size={30} color={colorPalette.purple} />
+        </TouchableOpacity>
       </View>
+    </View>
   )
 }
