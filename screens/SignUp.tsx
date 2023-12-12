@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { auth, fs } from '../firebaseConfig'
+import { auth, firestore } from '../firebaseConfig'
 import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
@@ -40,7 +40,7 @@ export default function SignUp({ navigation }) {
         updateProfile(userCredential.user, {
           displayName: `${email.substring(0, email.indexOf('@'))}`,
         })
-        await setDoc(doc(fs, `users/${userCredential.user.uid}`), {
+        await setDoc(doc(firestore, `users/${userCredential.user.uid}`), {
           username: `${email.substring(0, email.indexOf('@'))}`,
           email: email,
           pp: 'https://firebasestorage.googleapis.com/v0/b/youaretech-ravia.appspot.com/o/pp.png?alt=media&token=c399cce8-6805-48c7-bae0-3e603973bdef',
@@ -61,25 +61,33 @@ export default function SignUp({ navigation }) {
         <TextInput
           style={styles.TextInput}
           placeholder="Email"
-          onChangeText={setEmail}
+          onChangeText={(text) => setEmail(text)}
           value={email}
           autoCapitalize="none"
+          keyboardType="email-address"
+          textContentType="emailAddress"
+          autoFocus={true}
+
         />
         <TextInput
           style={styles.TextInput}
           placeholder="Sifre"
-          onChangeText={setPassword}
+          onChangeText={(text) => setPassword(text)}
           value={password}
           secureTextEntry
+          textContentType="password"
+
           autoCapitalize="none"
         />
         <TextInput
           style={styles.TextInput}
           placeholder="Sifre tekrar"
-          onChangeText={setPassword2}
+          onChangeText={(text) => setPassword2(text)}
           value={password2}
           secureTextEntry
           autoCapitalize="none"
+          textContentType="password"
+
         />
         <TouchableOpacity onPress={signUp} style={styles.Button}>
           <Text style={styles.ButtonText}>Hesap Olustur</Text>

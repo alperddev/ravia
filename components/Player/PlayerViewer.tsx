@@ -2,10 +2,10 @@ import React, { useState, useEffect, useRef } from 'react'
 import { View, Text, Dimensions } from 'react-native'
 import YoutubePlayer from 'react-native-youtube-iframe'
 import { useSelector } from 'react-redux'
-import { RootState } from '../app/Store'
+import { RootState } from '../Store'
 import { onValue, ref } from 'firebase/database'
-import { db } from '../firebaseConfig'
-import { styles } from './Style'
+import { database } from '../../firebaseConfig'
+import { styles } from '../Style'
 export default function ViewerPlayer() {
   const playerRef = useRef(null)
   const [currentTime, setCurrentTime] = useState(0)
@@ -33,9 +33,9 @@ export default function ViewerPlayer() {
   })
 
   useEffect(() => {
-    const currentTimeRef = ref(db, `rooms/${roomId}/currentTime`)
-    const playStatusRef = ref(db, `rooms/${roomId}/playStatus`)
-    const videoIdRef = ref(db, `rooms/${roomId}/videoId`)
+    const currentTimeRef = ref(database, `rooms/${roomId}/currentTime`)
+    const playStatusRef = ref(database, `rooms/${roomId}/playStatus`)
+    const videoIdRef = ref(database, `rooms/${roomId}/videoId`)
     onValue(currentTimeRef, (snapshot) => {
       setCurrentTimeDB(snapshot.val())
     })

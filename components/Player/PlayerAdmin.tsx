@@ -3,9 +3,9 @@ import { View, TextInput, Dimensions, Text } from 'react-native'
 import YoutubePlayer from 'react-native-youtube-iframe'
 import { ref, set } from 'firebase/database'
 import { useSelector } from 'react-redux'
-import { RootState } from '../app/Store'
-import { db } from '../firebaseConfig'
-import { styles } from './Style'
+import { RootState } from '../Store'
+import { database } from '../../firebaseConfig'
+import { styles } from '../Style'
 
 export default function AdminPlayer() {
   const roomId = useSelector((state: RootState) => state.roomId)
@@ -28,7 +28,7 @@ export default function AdminPlayer() {
   }, [videoId])
 
   useEffect(() => {
-    const currentTimeRef = ref(db, `rooms/${roomId}/currentTime`)
+    const currentTimeRef = ref(database, `rooms/${roomId}/currentTime`)
     let interval
 
     const getCurrentTime = async () => {
@@ -45,12 +45,12 @@ export default function AdminPlayer() {
   }, [roomId, currentTime])
 
   useEffect(() => {
-    const videoIdRef = ref(db, `rooms/${roomId}/videoId`)
+    const videoIdRef = ref(database, `rooms/${roomId}/videoId`)
     set(videoIdRef, videoId)
   }, [roomId, videoId])
 
   const onStateChange = async (state) => {
-    const playStatusRef = ref(db, `rooms/${roomId}/playStatus`)
+    const playStatusRef = ref(database, `rooms/${roomId}/playStatus`)
     if (state === 'playing') {
       setPlaying(true)
       set(playStatusRef, true)

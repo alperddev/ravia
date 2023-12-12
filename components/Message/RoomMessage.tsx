@@ -8,11 +8,11 @@ import {
   TouchableOpacity,
 } from 'react-native'
 import { useSelector } from 'react-redux'
-import { RootState } from '../app/Store'
+import { RootState } from '../Store'
 import { onValue, push, ref, set } from 'firebase/database'
-import { auth, db, fs } from '../firebaseConfig'
+import { auth, database, firestore } from '../../firebaseConfig'
 import { doc, getDoc } from 'firebase/firestore'
-import { styles, colorPalette } from './Style'
+import { styles, colorPalette } from '../Style'
 import { Ionicons } from '@expo/vector-icons'
 
 export default function Message() {
@@ -27,7 +27,7 @@ export default function Message() {
 
   useEffect(() => {
     if (roomId) {
-      const messagesRef = ref(db, `rooms/${roomId}/messages`)
+      const messagesRef = ref(database, `rooms/${roomId}/messages`)
       const unsubscribe = onValue(messagesRef, (snapshot) => {
         const data = snapshot.val()
         if (data) {
@@ -44,7 +44,7 @@ export default function Message() {
 
   const sendMessage = () => {
     if (roomId && newMessage) {
-      const messagesRef = ref(db, `rooms/${roomId}/messages`)
+      const messagesRef = ref(database, `rooms/${roomId}/messages`)
       const newMessageRef = push(messagesRef)
       set(newMessageRef, {
         text: newMessage,
@@ -56,7 +56,7 @@ export default function Message() {
   }
   useEffect(() => {
     const fetchPP = async () => {
-      const docSnap = await getDoc(doc(fs, `users/${auth.currentUser?.uid}`))
+      const docSnap = await getDoc(doc(firestore, `users/${auth.currentUser?.uid}`))
       setImageUrl(docSnap.data().pp)
     }
 

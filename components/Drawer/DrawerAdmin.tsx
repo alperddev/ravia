@@ -6,15 +6,17 @@ import {
   Text,
   Image,
   TextInput,
-  Alert,
+
 } from 'react-native'
 import { get, ref, remove, set } from 'firebase/database'
-import { auth, db, fs } from '../firebaseConfig'
-import { doc, getDoc } from 'firebase/firestore'
+import { auth, database, firestore } from '../../firebaseConfig'
+import { arrayUnion, doc, getDoc, updateDoc } from 'firebase/firestore'
 import { useSelector } from 'react-redux'
-import { RootState } from '../app/Store'
-import { colorPalette, styles } from './Style'
-export const AdminDrawer = ({ isOpen, toggleDrawer }) => {
+import { RootState } from '../Store'
+import { colorPalette, styles } from '../Style'
+import { UserOptions } from '../UserOptions/UserOptionsAdmin'
+
+export const Drawer = ({ isOpen, toggleDrawer }) => {
   const [users, setUsers] = useState([])
   const [photoURL, setPhotoURL] = useState([])
   const [usernames, setUsernames] = useState([])
@@ -23,7 +25,7 @@ export const AdminDrawer = ({ isOpen, toggleDrawer }) => {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const usersRef = ref(db, `rooms/${roomId}/users`)
+      const usersRef = ref(database, `rooms/${roomId}/users`)
       const usersSnapshot = await get(usersRef)
       const users = usersSnapshot.val() || {}
 
@@ -32,7 +34,7 @@ export const AdminDrawer = ({ isOpen, toggleDrawer }) => {
       const fetchedUsernames = []
 
       for (const userId in users) {
-        const userDoc = await getDoc(doc(fs, `users/${userId}`))
+        const userDoc = await getDoc(doc(firestore, `users/${userId}`))
         const pp = userDoc.data().pp
         const username = userDoc.data().username
 
@@ -51,53 +53,31 @@ export const AdminDrawer = ({ isOpen, toggleDrawer }) => {
     fetchUsers()
   }, [roomId, users])
 
-  function kickUser(user) {
-    const userRef = ref(db, `rooms/${roomId}/users/${user}`)
-    remove(userRef)
-  }
+  
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
-  function kickAndBanUser(user) {
-    const userRef = ref(db, `rooms/${roomId}/users/${user}`)
-    remove(userRef)
-
-    const bannedUserRef = ref(db, `rooms/${roomId}/banned/${user}`)
-    set(bannedUserRef, true)
-  }
   function handleUserPress(user) {
     if (user === auth.currentUser.uid) {
-      return
+      return;
     }
 
-    Alert.alert('', 'Kullanici Secenekleri', [
-      {
-        text: 'Geri',
-        style: 'cancel',
-      },
-      {
-        text: 'Odadan At',
-        onPress: () => kickUser(user),
-      },
-      {
-        text: 'Odadan At ve engelle',
-        onPress: () => kickAndBanUser(user),
-      },
-    ])
+    setSelectedUser(user);
+    setModalVisible(true);
   }
-
+    
   function handlePassword() {
     if (roomId && auth.currentUser) {
-      const passwordRef = ref(db, `rooms/${roomId}/password`)
+      const passwordRef = ref(database, `rooms/${roomId}/password`)
       set(passwordRef, password)
     }
   }
 
   return (
     <View style={[styles.drawer, isOpen ? styles.open : styles.closed]}>
-      <View
-        style={[styles.drawer3, isOpen ? styles.open : styles.closed]}
-        onTouchStart={toggleDrawer}
-      />
-
+      <TouchableOpacity       onPress={toggleDrawer}
+ style={[styles.drawer3, isOpen ? styles.open : styles.closed]}
+/>
       <ScrollView
         style={[styles.drawer2, isOpen ? styles.open : styles.closed]}
       >
@@ -127,7 +107,15 @@ export const AdminDrawer = ({ isOpen, toggleDrawer }) => {
         <TouchableOpacity style={styles.Button3} onPress={handlePassword}>
           <Text style={styles.ButtonText}>Sifre ayarla</Text>
         </TouchableOpacity>
+
       </ScrollView>
+      <UserOptions
+      modalVisible={modalVisible}
+      setModalVisible={setModalVisible}
+      selectedUser={selectedUser}
+      roomId={roomId}
+    />
+
     </View>
   )
 }

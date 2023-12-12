@@ -8,9 +8,9 @@ import {
   Alert,
 } from 'react-native'
 import { useDispatch } from 'react-redux'
-import { auth, db, fs } from '../firebaseConfig'
+import { auth, database, firestore } from '../firebaseConfig'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { doc, getDoc } from 'firebase/firestore'
+import { arrayUnion, doc, getDoc, setDoc } from 'firebase/firestore'
 import { get, ref, set } from 'firebase/database'
 import { styles } from '../components/Style'
 
@@ -21,7 +21,7 @@ export default function Join({ navigation }) {
   const dispatch = useDispatch()
   useEffect(() => {
     const fetchPP = async () => {
-      const docSnap = await getDoc(doc(fs, `users/${auth.currentUser?.uid}`))
+      const docSnap = await getDoc(doc(firestore, `users/${auth.currentUser?.uid}`))
       setImageUrl(docSnap.data().pp)
     }
 
@@ -35,6 +35,14 @@ export default function Join({ navigation }) {
   const createRoom = () => {
     const newRoomId = generateUniqueID()
     dispatch({ type: 'SET_ROOMID', roomId: newRoomId })
+    
+    const roomRef = doc(firestore, `users/${auth.currentUser.uid}/rooms/${newRoomId}`);
+  
+    setDoc(roomRef,{
+      Users:auth.currentUser.uid,
+      Admin:auth.currentUser.uid,
+
+    });
     navigation.navigate('Admin')
   }
   const joinRoom = async () => {
@@ -42,7 +50,7 @@ export default function Join({ navigation }) {
       Alert.alert('Hata', 'Oda kodu girilmedi')
       return
     }
-    const roomRef = ref(db, `rooms/${getRoomId}`)
+    const roomRef = ref(database, `rooms/${getRoomId}`)
     const snapshot = await get(roomRef)
 
     if (snapshot.exists()) {
@@ -54,9 +62,12 @@ export default function Join({ navigation }) {
         Alert.alert('Hata', 'Sifre gecersiz.')
       } else {
         dispatch({ type: 'SET_ROOMID', roomId: getRoomId })
-
+        const roomRef = doc(firestore, `users/${auth.currentUser.uid}/rooms/${getRoomId}`);
+        setDoc(roomRef,{
+          Users:auth.currentUser.uid,    
+        });
         const viewerRef = ref(
-          db,
+          database,
           `rooms/${getRoomId}/users/${auth.currentUser.uid}`
         )
         set(viewerRef, false)
@@ -95,6 +106,12 @@ export default function Join({ navigation }) {
         />
         <TouchableOpacity onPress={joinRoom} style={styles.Button2}>
           <Text style={styles.ButtonText2}>Odaya Katil</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={()=>navigation.navigate('Chats')} style={styles.Button2}>
+          <Text style={styles.ButtonText2}>Chat</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={()=>navigation.navigate('Rooms')} style={styles.Button2}>
+          <Text style={styles.ButtonText2}>Rooms</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

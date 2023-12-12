@@ -207,6 +207,9 @@ export const styles = StyleSheet.create({
   open: {
     zIndex: 50,
   },
+  open2: {
+    zIndex: 49,
+  },
 
   closed: {
     opacity: 0,

@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { TouchableOpacity, View, Text } from 'react-native'
 import { useSelector } from 'react-redux'
-import { RootState } from './Store'
+import { RootState } from '../components/Store'
 import { ref, onValue, off, set, remove } from 'firebase/database'
-import { auth, db } from '../firebaseConfig'
-import UserList from '../components/UserListViewer'
-import Message from '../components/Message'
-import ViewerPlayer from '../components/PlayerViewer'
-import { DrawerViewer } from '../components/DrawerViewer'
+import { auth, database } from '../firebaseConfig'
+import UserList from '../components/UserList/UserListViewer'
+import Message from '../components/Message/RoomMessage'
+import { Drawer } from '../components/Drawer/DrawerViewer'
 import { colorPalette, styles } from '../components/Style'
 import * as Clipboard from 'expo-clipboard'
 import { Ionicons } from '@expo/vector-icons'
@@ -25,7 +24,7 @@ export default function Viewer({ navigation }) {
 
   useEffect(() => {
     if (roomId && auth.currentUser) {
-      const viewerRef = ref(db, `rooms/${roomId}/users/${auth.currentUser.uid}`)
+      const viewerRef = ref(database, `rooms/${roomId}/users/${auth.currentUser.uid}`)
       set(viewerRef, false)
 
       return () => {
@@ -35,7 +34,7 @@ export default function Viewer({ navigation }) {
   }, [roomId])
 
   useEffect(() => {
-    const usersRef = ref(db, `rooms/${roomId}/users`)
+    const usersRef = ref(database, `rooms/${roomId}/users`)
     const checkUserPresence = (snapshot) => {
       if (!snapshot.hasChild(auth.currentUser.uid)) {
         navigation.navigate('Join')
@@ -54,9 +53,9 @@ export default function Viewer({ navigation }) {
       <TouchableOpacity onPress={toggleDrawer}>
         <UserList />
       </TouchableOpacity>
-
-      <ViewerPlayer />
-      <Message />
+{//<ViewerPlayer />
+}
+   <Message />
       <TouchableOpacity onPress={copyToClipboard}>
         <View
           style={{
@@ -75,7 +74,7 @@ export default function Viewer({ navigation }) {
           />
         </View>
       </TouchableOpacity>
-      <DrawerViewer isOpen={isDrawerOpen} toggleDrawer={toggleDrawer} />
+      <Drawer isOpen={isDrawerOpen} toggleDrawer={toggleDrawer} />
     </View>
   )
 }

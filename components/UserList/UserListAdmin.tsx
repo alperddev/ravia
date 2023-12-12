@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { View, Image } from 'react-native'
 import { get, ref } from 'firebase/database'
-import { db, fs } from '../firebaseConfig'
+import { database, firestore } from '../../firebaseConfig'
 import { doc, getDoc } from 'firebase/firestore'
 import { useSelector } from 'react-redux'
-import { RootState } from '../app/Store'
-import { colorPalette, styles } from './Style'
+import { RootState } from '../Store'
+import { colorPalette, styles } from '../Style'
 import { MaterialIcons } from '@expo/vector-icons'
 export default function UserList() {
   const [users, setUsers] = useState([])
@@ -14,7 +14,7 @@ export default function UserList() {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const usersRef = ref(db, `rooms/${roomId}/users`)
+      const usersRef = ref(database, `rooms/${roomId}/users`)
       const usersSnapshot = await get(usersRef)
       const users = usersSnapshot.val() || {}
 
@@ -22,7 +22,7 @@ export default function UserList() {
       const fetchedPhotoURLs = []
 
       for (const userId in users) {
-        const userDoc = await getDoc(doc(fs, `users/${userId}`))
+        const userDoc = await getDoc(doc(firestore, `users/${userId}`))
         const pp = userDoc.data().pp
 
         fetchedUsers.push(userId)

@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { View, Text, Image, TextInput, Alert, TouchableOpacity } from 'react-native'
-import { auth, fs } from '../firebaseConfig'
+import { auth, firestore } from '../firebaseConfig'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import {
   EmailAuthProvider,
   reauthenticateWithCredential,
+  signOut,
   updatePassword,
   updateProfile,
 } from 'firebase/auth'
@@ -12,8 +13,9 @@ import * as ImagePicker from 'expo-image-picker'
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { colorPalette, styles } from '../components/Style'
+import { useDispatch } from 'react-redux'
 
-export default function Profile() {
+export default function Profile({navigation}) {
   const [imageUrl, setImageUrl] = useState(null)
   const [username, setUsername] = useState(auth.currentUser?.displayName)
   const [password, setPassword] = useState('')
@@ -33,7 +35,7 @@ export default function Profile() {
       const storageRef = ref(storage, `users/${auth.currentUser.uid}/pp`)
       await uploadBytes(storageRef, blob)
       const url = await getDownloadURL(storageRef)
-      const userDoc = doc(fs, `users/${auth.currentUser.uid}`)
+      const userDoc = doc(firestore, `users/${auth.currentUser.uid}`)
       await updateDoc(userDoc, { pp: url })
       setImageUrl(url)
     }
@@ -41,7 +43,7 @@ export default function Profile() {
 
   useEffect(() => {
     const fetchPP = async () => {
-      const docSnap = await getDoc(doc(fs, `users/${auth.currentUser?.uid}`))
+      const docSnap = await getDoc(doc(firestore, `users/${auth.currentUser?.uid}`))
       setImageUrl(docSnap.data().pp)
     }
 
@@ -58,7 +60,7 @@ export default function Profile() {
       return
     }
     try {
-      const docRef = doc(fs, `users/${auth.currentUser?.uid}`)
+      const docRef = doc(firestore, `users/${auth.currentUser?.uid}`)
 
       await updateProfile(auth.currentUser, {
         displayName: username
@@ -102,15 +104,21 @@ export default function Profile() {
       })
   }
 
-  const SignOut = () => {
-    auth.signOut().catch((error) => {
-      console.error(error)
-    })
-  }
+  const dispatch = useDispatch();
+
+  const SignOut = async () => {
+    try {
+      await auth.signOut();
+      dispatch({ type: 'SET_USER', user: null });
+      navigation.replace('SignIn');
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.View}>
-      <TouchableOpacity onPress={uploadImage}>
+      <TouchableOpacity style={{marginTop:30}} onPress={uploadImage}>
                 <Image source={{ uri: imageUrl }} style={styles.pp4} />
                 </TouchableOpacity>
       <View>

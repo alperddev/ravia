@@ -4,15 +4,15 @@ import {
   TextInput,
   TouchableOpacity,
   Text,
-  BackHandler,
 } from 'react-native'
-import { signInWithEmailAndPassword, getAuth } from 'firebase/auth'
+import { signInWithEmailAndPassword } from 'firebase/auth'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { styles } from '../components/Style'
+import { auth } from '../firebaseConfig'
+
 export default function SignIn() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const auth = getAuth()
   const signIn = async () => {
     try {
       const userCredential = await signInWithEmailAndPassword(
@@ -36,15 +36,16 @@ export default function SignIn() {
         <TextInput
           style={styles.TextInput}
           placeholder="Email"
-          onChangeText={setEmail}
+          onChangeText={(text) => setEmail(text)}
           value={email}
           autoCapitalize="none"
         />
         <TextInput
           style={styles.TextInput}
           placeholder="Sifre"
-          onChangeText={setPassword}
+          onChangeText={(text) => setPassword(text)}
           value={password}
+          autoCorrect={false}
           secureTextEntry
           autoCapitalize="none"
         />
