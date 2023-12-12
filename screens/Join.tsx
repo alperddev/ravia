@@ -40,7 +40,7 @@ export default function Join({ navigation }) {
   
     setDoc(roomRef,{
       Users:auth.currentUser.uid,
-      Admin:auth.currentUser.uid,
+      Admins:auth.currentUser.uid,
 
     });
     navigation.navigate('Admin')
@@ -70,7 +70,7 @@ export default function Join({ navigation }) {
           database,
           `rooms/${getRoomId}/users/${auth.currentUser.uid}`
         )
-        set(viewerRef, false)
+        set(viewerRef, true)
         navigation.navigate('Viewer')
       }
     } else {

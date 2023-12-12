@@ -25,10 +25,10 @@ export default function Viewer({ navigation }) {
   useEffect(() => {
     if (roomId && auth.currentUser) {
       const viewerRef = ref(database, `rooms/${roomId}/users/${auth.currentUser.uid}`)
-      set(viewerRef, false)
+      set(viewerRef, true)
 
       return () => {
-        remove(viewerRef)
+        set(viewerRef, false)
       }
     }
   }, [roomId])
