@@ -12,7 +12,7 @@ export default {
     splash: {
       image: './assets/splash.png',
       resizeMode: 'contain',
-      backgroundColor: '#0D0D0D',
+      backgroundColor: '#323643',
     },
 
     assetBundlePatterns: ['**/*'],
@@ -22,7 +22,7 @@ export default {
     android: {
       adaptiveIcon: {
         foregroundImage: './assets/adaptive-icon.png',
-        backgroundColor: '#0D0D0D',
+        backgroundColor: '#323643',
       },
 
       package: 'com.youaretech.ravia',

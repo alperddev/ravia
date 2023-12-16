@@ -7,20 +7,17 @@ import {
   TouchableOpacity,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { auth, firestore } from '../firebaseConfig'
+import { auth } from '../firebaseConfig'
 import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
-  updateProfile,
 } from 'firebase/auth'
-import { doc, setDoc } from 'firebase/firestore'
 import { styles } from '../components/Style'
 import { useDispatch } from 'react-redux'
 export default function SignUp({ navigation }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [password2, setPassword2] = useState('')
-  const dispatch = useDispatch()
 
   const signUp = async () => {
     if (!(password === password2)) {
@@ -39,22 +36,10 @@ export default function SignUp({ navigation }) {
       )
       if (userCredential.user) {
         await sendEmailVerification(userCredential.user)
-        updateProfile(userCredential.user, {
-          displayName: `${email.substring(0, email.indexOf('@'))}`,
-        })
-        await setDoc(doc(firestore, `users/${userCredential.user.uid}`), {
-          username: `${email.substring(0, email.indexOf('@'))}`,
-          email: email,
-          pp: 'https://firebasestorage.googleapis.com/v0/b/youaretech-ravia.appspot.com/o/pp.png?alt=media&token=c399cce8-6805-48c7-bae0-3e603973bdef',
-        })
+
         Alert.alert(
           'Dogrulama maili gonderildi. Lutfen gelen kutunu kontrol et.'
         )
-        dispatch({
-          type: 'SET_PROFILEPICTURE',
-          profilePicture:
-            'https://firebasestorage.googleapis.com/v0/b/youaretech-ravia.appspot.com/o/pp.png?alt=media&token=c399cce8-6805-48c7-bae0-3e603973bdef',
-        })
         navigation.navigate('SignIn')
       }
     } catch (error) {

@@ -17,10 +17,12 @@ import {
 } from 'firebase/auth'
 import * as ImagePicker from 'expo-image-picker'
 import { doc, updateDoc } from 'firebase/firestore'
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
+import { ref, uploadBytes, getDownloadURL,  } from 'firebase/storage'
 import { colorPalette, styles } from '../components/Style'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../components/Store'
+import { ScrollView } from 'react-native-gesture-handler'
+import {storage} from '../firebaseConfig'
 
 export default function Profile({ navigation }) {
   const [username, setUsername] = useState(auth.currentUser?.displayName)
@@ -29,7 +31,10 @@ export default function Profile({ navigation }) {
   const profilePicture = useSelector((state: RootState) => state.profilePicture)
   const dispatch = useDispatch()
 
+
+  
   const uploadImage = async () => {
+    
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
@@ -40,7 +45,6 @@ export default function Profile({ navigation }) {
     if (!result.canceled) {
       const response = await fetch(result.assets[0].uri)
       const blob = await response.blob()
-      const storage = getStorage()
       const storageRef = ref(storage, `users/${auth.currentUser.uid}/pp`)
       await uploadBytes(storageRef, blob)
       const url = await getDownloadURL(storageRef)
@@ -118,7 +122,8 @@ export default function Profile({ navigation }) {
       <TouchableOpacity style={{ marginTop: 30 }} onPress={uploadImage}>
         <Image source={{ uri: profilePicture }} style={styles.pp4} />
       </TouchableOpacity>
-      <View>
+      <ScrollView >
+
         <Text style={styles.Text5}>Email: {auth.currentUser?.email}</Text>
 
         <TextInput
@@ -151,7 +156,8 @@ export default function Profile({ navigation }) {
         <TouchableOpacity onPress={SignOut} style={styles.Button5}>
           <Text style={styles.ButtonText}>Cikis yap</Text>
         </TouchableOpacity>
-      </View>
+        </ScrollView>
+
     </SafeAreaView>
   )
 }
