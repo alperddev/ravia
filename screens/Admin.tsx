@@ -10,7 +10,6 @@ import { Drawer } from '../components/Drawer/DrawerAdmin'
 import { colorPalette, styles } from '../components/Style'
 import { Ionicons } from '@expo/vector-icons'
 import * as Clipboard from 'expo-clipboard'
-import { doc, updateDoc, arrayUnion, setDoc } from 'firebase/firestore'
 
 export default function Admin() {
   const roomId = useSelector((state: RootState) => state.roomId)
@@ -33,7 +32,7 @@ return () => {
     }
 
     
-  }, [roomId])
+  }, [])
 
   const copyToClipboard = async () => {
     await Clipboard.setStringAsync(roomId)

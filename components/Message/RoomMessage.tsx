@@ -40,7 +40,7 @@ export default function Message() {
       })
       return () => unsubscribe()
     }
-  }, [roomId])
+  }, [])
 
   const sendMessage = () => {
     if (roomId && newMessage) {

@@ -13,13 +13,18 @@ import * as ImagePicker from 'expo-image-picker'
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { colorPalette, styles } from '../components/Style'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { RootState } from '../components/Store'
+
 
 export default function Profile({navigation}) {
-  const [imageUrl, setImageUrl] = useState(null)
+
   const [username, setUsername] = useState(auth.currentUser?.displayName)
   const [password, setPassword] = useState('')
   const [currentPassword, setCurrentPassword] = useState('')
+const profilePicture = useSelector((state: RootState) => state.profilePicture);
+const dispatch = useDispatch()
+
   const uploadImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -37,18 +42,12 @@ export default function Profile({navigation}) {
       const url = await getDownloadURL(storageRef)
       const userDoc = doc(firestore, `users/${auth.currentUser.uid}`)
       await updateDoc(userDoc, { pp: url })
-      setImageUrl(url)
+      dispatch({ type: 'SET_PROFILEPICTURE', profilePicture: url })
+
     }
   }
 
-  useEffect(() => {
-    const fetchPP = async () => {
-      const docSnap = await getDoc(doc(firestore, `users/${auth.currentUser?.uid}`))
-      setImageUrl(docSnap.data().pp)
-    }
 
-    fetchPP()
-  }, [])
 
   const changeUsername = async () => {
     if (username.length < 6) {
@@ -104,7 +103,6 @@ export default function Profile({navigation}) {
       })
   }
 
-  const dispatch = useDispatch();
 
   const SignOut = async () => {
     try {
@@ -119,7 +117,7 @@ export default function Profile({navigation}) {
   return (
     <SafeAreaView style={styles.View}>
       <TouchableOpacity style={{marginTop:30}} onPress={uploadImage}>
-                <Image source={{ uri: imageUrl }} style={styles.pp4} />
+                <Image source={{ uri: profilePicture }} style={styles.pp4} />
                 </TouchableOpacity>
       <View>
         <Text style={styles.Text5}>Email: {auth.currentUser?.email}</Text>

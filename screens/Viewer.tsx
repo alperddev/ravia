@@ -31,7 +31,7 @@ export default function Viewer({ navigation }) {
         set(viewerRef, false)
       }
     }
-  }, [roomId])
+  }, [])
 
   useEffect(() => {
     const usersRef = ref(database, `rooms/${roomId}/users`)

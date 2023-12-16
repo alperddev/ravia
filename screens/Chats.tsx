@@ -48,7 +48,7 @@ export default function Chats  ({navigation})  {
       
     }
     fetchFriends();
-  }, [friends]);
+  }, []);
 
   function handleUserPress(user) {
     dispatch({ type: 'SET_CHATID', chatId: user.chatRoomId });

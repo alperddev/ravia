@@ -5,7 +5,7 @@ import {
   Image,
   TouchableOpacity,
 } from 'react-native'
-import { get, ref } from 'firebase/database'
+import {  onValue, ref } from 'firebase/database'
 import { auth, database, firestore } from '../../firebaseConfig'
 import {  doc, getDoc,  } from 'firebase/firestore'
 import { useSelector } from 'react-redux'
@@ -18,36 +18,41 @@ export const Drawer = ({ isOpen, toggleDrawer }) => {
   const [photoURL, setPhotoURL] = useState([])
   const [usernames, setUsernames] = useState([])
   const roomId = useSelector((state: RootState) => state.roomId)
-
+ 
   useEffect(() => {
-    const fetchUsers = async () => {
-      const usersRef = ref(database, `rooms/${roomId}/users`)
-      const usersSnapshot = await get(usersRef)
-      const users = usersSnapshot.val() || {}
-
-      const fetchedUsers = []
-      const fetchedPhotoURLs = []
-      const fetchedUsernames = []
-
-      for (const userId in users) {
-        const userDoc = await getDoc(doc(firestore, `users/${userId}`))
-        const pp = userDoc.data().pp
-        const username = userDoc.data().username
-
-        fetchedUsers.push(userId)
-        fetchedPhotoURLs.push(pp && typeof pp === 'string' ? pp : null)
-        fetchedUsernames.push(
-          username && typeof username === 'string' ? username : null
-        )
+    const usersRef = ref(database, `rooms/${roomId}/users`);
+    onValue(usersRef, (snapshot) => {
+      const users = snapshot.val() || {};
+  
+    
+          const fetchedUsers = []
+          const fetchedPhotoURLs = []
+          const fetchedUsernames = []
+    
+          for (const userId in users) {
+            if (users[userId] === false) continue
+    
+            getDoc(doc(firestore, `users/${userId}`)).then((userDoc) => {
+              const pp = userDoc.data().pp
+              const username = userDoc.data().username
+    
+              fetchedUsers.push(userId)
+              fetchedPhotoURLs.push(pp && typeof pp === 'string' ? pp : null)
+              fetchedUsernames.push(
+                username && typeof username === 'string' ? username : null
+              )
+    
+              setUsers(fetchedUsers)
+              setPhotoURL(fetchedPhotoURLs)
+              setUsernames(fetchedUsernames)
+            })
+          }
+        })
       }
-
-      setUsers(fetchedUsers)
-      setPhotoURL(fetchedPhotoURLs)
-      setUsernames(fetchedUsernames)
-    }
-
-    fetchUsers()
-  }, [roomId, users])
+    
+    , [])
+    
+  
 
 
   const [modalVisible, setModalVisible] = useState(false);

@@ -10,7 +10,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 
 import { auth } from './firebaseConfig';
 import { View, ActivityIndicator } from 'react-native';
-import Join from './screens/Join';
+import Home from './screens/Home';
 import Admin from './screens/Admin';
 import Viewer from './screens/Viewer';
 import SignUp from './screens/SignUp';
@@ -20,8 +20,65 @@ import { store, persistor, RootState } from './components/Store';
 import { colorPalette } from './components/Style';
 import Chat from './screens/Chat';
 import Chats  from './screens/Chats';
-import Rooms from './screens/Rooms';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import {MaterialIcons} from '@expo/vector-icons';
 const Stack = createStackNavigator();
+const Tab = createBottomTabNavigator();
+
+
+function HomeTabs() {
+  return (
+    <Tab.Navigator screenOptions={{
+      headerShown: false,
+      tabBarActiveTintColor: colorPalette.white,
+      tabBarInactiveTintColor: colorPalette.blackL,
+      tabBarStyle: {backgroundColor: colorPalette.black},
+      tabBarShowLabel: false,
+    }}>
+      <Tab.Screen 
+        name="Home" 
+        component={Home} 
+        options={{ 
+          tabBarIcon: ({focused}) => (
+            <MaterialIcons 
+              name="home" 
+              color={focused ? colorPalette.white : colorPalette.blackL} 
+              size={focused ? 28 : 24} 
+            />
+          )
+        }} 
+      />
+      <Tab.Screen 
+        name="Chats" 
+        component={Chats} 
+        options={{
+          tabBarIcon: ({focused}) => (
+            <MaterialIcons 
+              name="chat"  
+              color={focused ? colorPalette.white : colorPalette.blackL} 
+              size={focused ? 28 : 26} 
+            />
+          )
+        }} 
+      />
+      <Tab.Screen 
+        name="Profile" 
+        component={Profile} 
+        options={{
+          tabBarIcon: ({focused}) => (
+            <MaterialIcons 
+              name="person" 
+              color={focused ? colorPalette.white : colorPalette.blackL} 
+              size={focused ? 28 : 26} 
+            />
+          )
+        }} 
+      />
+    </Tab.Navigator>
+  );
+}
+
+
 
 function HomeStack() {
   return (
@@ -31,9 +88,7 @@ function HomeStack() {
       headerTitleAlign: 'center',
 
     }}>
-      <Stack.Screen name="Join" component={Join} />
-      <Stack.Screen name="Rooms" component={Rooms} />
-      <Stack.Screen name="Chats" component={Chats} />
+      <Stack.Screen name="HomeTabs" component={HomeTabs} options={{headerShown: false}}/>
       <Stack.Screen name="Chat" component={Chat} />
       <Stack.Screen name="Profile" component={Profile} />
       <Stack.Screen name="Admin" component={Admin} />

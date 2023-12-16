@@ -7,6 +7,7 @@ export interface RootState {
   friendId: string;
   chatId: string;
   userId: string;
+  profilePicture: string;
   email: string;
   user: any | null;
 }
@@ -16,6 +17,7 @@ const initialState: RootState = {
   friendId: '',
   chatId: '',
   userId: '',
+  profilePicture:'',
   email: '',
   user: null,
 };
@@ -35,6 +37,7 @@ const rootReducer = combineReducers({
   friendId: createReducer('friendId', initialState.friendId),
   chatId: createReducer('chatId', initialState.chatId),
   userId: createReducer('userId', initialState.userId),
+  profilePicture: createReducer('profilePicture', initialState.profilePicture),
   email: createReducer('email', initialState.email),
   user: createReducer('user', initialState.user),
 });
@@ -42,7 +45,7 @@ const rootReducer = combineReducers({
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: ['user'],
+  whitelist: ['user','profilePicture'],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

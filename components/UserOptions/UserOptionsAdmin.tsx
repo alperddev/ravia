@@ -39,6 +39,18 @@ export const UserOptions = ({ modalVisible, setModalVisible, selectedUser, roomI
   });
 }
 
+async function setAdmin() {
+  const userRef = doc(firestore, `users/${auth.currentUser.uid}/friends/${selectedUser}`);
+  const friendRef = doc(firestore, `users/${selectedUser}/friends/${auth.currentUser.uid}`);
+  const chatRoomId = await createChatRoom();
+
+  await setDoc(userRef, {
+      chatRoomId: chatRoomId
+  });
+  await setDoc(friendRef, {
+    chatRoomId: chatRoomId
+});
+}
   return (
     <Modal
       animationType="slide"

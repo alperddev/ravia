@@ -94,6 +94,8 @@ export const styles = StyleSheet.create({
     marginHorizontal: 20,
     padding: 10,
     borderRadius: 25,
+    width: Dimensions.get('window').width * 0.8,
+
   },
   Button: {
     backgroundColor: colorPalette.purple,
@@ -252,4 +254,55 @@ marginBottom:100
     backgroundColor: colorPalette.pink,
     justifyContent: 'center',
   },
+  
+  fab: {
+    position: 'absolute',
+    width: 56,
+    height: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
+    right: 30,
+    bottom: 30,
+    backgroundColor: colorPalette.green,
+    borderRadius: 30,
+    elevation: 8
+  },
+  fabIcon: {
+    fontSize: 24,
+    color: 'white'
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: colorPalette.blackL,
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5
+  },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2
+  },
+  buttonClose: {
+    backgroundColor: "#2196F3",
+  },
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center"
+  }
 })

@@ -8,11 +8,17 @@ import {
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { styles } from '../components/Style'
-import { auth } from '../firebaseConfig'
+import { auth, firestore } from '../firebaseConfig'
+import { useDispatch, useSelector } from 'react-redux'
+import { RootState } from '../components/Store'
+import { doc, getDoc } from 'firebase/firestore'
 
 export default function SignIn() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const dispatch = useDispatch()
+  const profilePicture = useSelector((state: RootState) => state.profilePicture);
+
   const signIn = async () => {
     try {
       const userCredential = await signInWithEmailAndPassword(
@@ -20,11 +26,16 @@ export default function SignIn() {
         email,
         password
       ).then( )
+      
       if (!userCredential.user.emailVerified) {
         alert('Lutfen giris yapmadan once mailini dogrula.')
         auth.signOut()
       }
-
+else if (profilePicture==='') {
+  const docSnap = await getDoc(doc(firestore, `users/${auth.currentUser?.uid}`))
+  dispatch({ type: 'SET_PROFILEPICTURE', profilePicture:  (docSnap.data().pp)
+})
+}
     } catch (error) {
       console.error(error)
     }

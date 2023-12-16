@@ -7,7 +7,7 @@ import {
   KeyboardAvoidingView,
 } from 'react-native'
 import { auth, firestore } from '../firebaseConfig'
-import { doc, getDoc, collection, query, onSnapshot, addDoc, orderBy } from 'firebase/firestore'
+import {  collection, query, onSnapshot, addDoc, orderBy } from 'firebase/firestore'
 import { styles, colorPalette } from '../components/Style'
 import { Ionicons } from '@expo/vector-icons'
 import Message from '../components/Message/PrivateMessage'
@@ -15,12 +15,13 @@ import { useSelector } from 'react-redux'
 import { RootState } from '../components/Store'
 
 export default function Chat() {
-  const [imageUrl, setImageUrl] = useState(null)
 
   const username = auth.currentUser?.displayName
 
   const [messages, setMessages] = useState([])
   const [newMessage, setNewMessage] = useState('')
+  const profilePicture = useSelector((state: RootState) => state.profilePicture)
+
   const roomId = useSelector((state: RootState) => state.chatId)
   const friendId = useSelector((state: RootState) => state.friendId)
 
@@ -41,7 +42,7 @@ export default function Chat() {
       })
       return () => unsubscribe()
     }
-  }, [roomId])
+  }, [])
 
   const sendMessage = async () => {
     setNewMessage('')
@@ -53,7 +54,7 @@ export default function Chat() {
       const message = {
         text: newMessage,
         username: username,
-        photoURL: imageUrl,
+        photoURL: profilePicture,
         timestamp: Date.now(),
       }
   
@@ -62,14 +63,6 @@ export default function Chat() {
     }
   }
 
-  useEffect(() => {
-    const fetchPP = async () => {
-      const docSnap = await getDoc(doc(firestore, `users/${auth.currentUser?.uid}`))
-      setImageUrl(docSnap.data().pp)
-    }
-
-    fetchPP()
-  }, [])
 
   return (
     <View style={{flex:1, paddingTop: 20, backgroundColor:colorPalette.black }}>
