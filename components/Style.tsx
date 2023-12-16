@@ -57,6 +57,7 @@ export const styles = StyleSheet.create({
     width: Dimensions.get('window').width * 0.6,
     marginBottom: 20,
     paddingHorizontal: 20,
+    marginTop: 20,
     fontSize: 17,
     color: colorPalette.white,
   },
@@ -95,7 +96,6 @@ export const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 25,
     width: Dimensions.get('window').width * 0.8,
-
   },
   Button: {
     backgroundColor: colorPalette.purple,
@@ -245,8 +245,7 @@ export const styles = StyleSheet.create({
     borderRadius: 999,
     borderWidth: 3,
     borderColor: colorPalette.orange,
-marginBottom:100
-    
+    marginBottom: 100,
   },
   video0: {
     top: 10,
@@ -254,7 +253,7 @@ marginBottom:100
     backgroundColor: colorPalette.pink,
     justifyContent: 'center',
   },
-  
+
   fab: {
     position: 'absolute',
     width: 56,
@@ -265,44 +264,44 @@ marginBottom:100
     bottom: 30,
     backgroundColor: colorPalette.green,
     borderRadius: 30,
-    elevation: 8
+    elevation: 8,
   },
   fabIcon: {
     fontSize: 24,
-    color: 'white'
+    color: 'white',
   },
   centeredView: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 22
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
   },
   modalView: {
     margin: 20,
     backgroundColor: colorPalette.blackL,
     borderRadius: 20,
     padding: 35,
-    alignItems: "center",
-    shadowColor: "#000",
+    alignItems: 'center',
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2
+      height: 2,
     },
     shadowOpacity: 0.25,
     shadowRadius: 4,
-    elevation: 5
+    elevation: 5,
   },
   button: {
     borderRadius: 20,
     padding: 10,
-    elevation: 2
+    elevation: 2,
   },
   buttonClose: {
-    backgroundColor: "#2196F3",
+    backgroundColor: '#2196F3',
   },
   textStyle: {
-    color: "white",
-    fontWeight: "bold",
-    textAlign: "center"
-  }
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
 })

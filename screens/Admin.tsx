@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { View, TextInput, Button, TouchableOpacity, Text } from 'react-native'
-import { ref, remove, set } from 'firebase/database'
+import { ref, remove, set, onValue } from 'firebase/database'
 import { useSelector } from 'react-redux'
 import { RootState } from '../components/Store'
 import { auth, database, firestore } from '../firebaseConfig'
@@ -11,27 +11,42 @@ import { colorPalette, styles } from '../components/Style'
 import { Ionicons } from '@expo/vector-icons'
 import * as Clipboard from 'expo-clipboard'
 
-export default function Admin() {
+export default function Admin({ navigation }) {
   const roomId = useSelector((state: RootState) => state.roomId)
   const [isDrawerOpen, setDrawerOpen] = useState(false)
   const toggleDrawer = () => {
     setDrawerOpen(!isDrawerOpen)
   }
 
-
-
-
   useEffect(() => {
     if (roomId && auth.currentUser) {
-      const usersRef = ref(database, `rooms/${roomId}/users/${auth.currentUser.uid}`)
+      const usersRef = ref(database, `rooms/${roomId}/users`)
+
+      const listener = onValue(usersRef, (snapshot) => {
+        const data = snapshot.val()
+        if (!data.hasOwnProperty(auth.currentUser.uid)) {
+          navigation.navigate('Home')
+        }
+      })
+
+      return () => {
+        listener()
+      }
+    }
+  }, [])
+  useEffect(() => {
+    if (roomId && auth.currentUser) {
+      const usersRef = ref(
+        database,
+        `rooms/${roomId}/users/${auth.currentUser.uid}`
+      )
 
       set(usersRef, true)
 
-return () => {
- set(usersRef, false)}
+      return () => {
+        set(usersRef, false)
+      }
     }
-
-    
   }, [])
 
   const copyToClipboard = async () => {
@@ -43,8 +58,9 @@ return () => {
       <TouchableOpacity onPress={toggleDrawer}>
         <UserList />
       </TouchableOpacity>
-{ //<AdminPlayer />
-}
+      {
+        //<AdminPlayer />
+      }
       <Message />
       <TouchableOpacity onPress={copyToClipboard}>
         <View

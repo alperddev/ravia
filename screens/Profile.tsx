@@ -1,29 +1,33 @@
-import React, { useEffect, useState } from 'react'
-import { View, Text, Image, TextInput, Alert, TouchableOpacity } from 'react-native'
+import React, { useState } from 'react'
+import {
+  View,
+  Text,
+  Image,
+  TextInput,
+  Alert,
+  TouchableOpacity,
+} from 'react-native'
 import { auth, firestore } from '../firebaseConfig'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import {
   EmailAuthProvider,
   reauthenticateWithCredential,
-  signOut,
   updatePassword,
   updateProfile,
 } from 'firebase/auth'
 import * as ImagePicker from 'expo-image-picker'
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
+import { doc, updateDoc } from 'firebase/firestore'
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { colorPalette, styles } from '../components/Style'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../components/Store'
 
-
-export default function Profile({navigation}) {
-
+export default function Profile({ navigation }) {
   const [username, setUsername] = useState(auth.currentUser?.displayName)
   const [password, setPassword] = useState('')
   const [currentPassword, setCurrentPassword] = useState('')
-const profilePicture = useSelector((state: RootState) => state.profilePicture);
-const dispatch = useDispatch()
+  const profilePicture = useSelector((state: RootState) => state.profilePicture)
+  const dispatch = useDispatch()
 
   const uploadImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -43,11 +47,8 @@ const dispatch = useDispatch()
       const userDoc = doc(firestore, `users/${auth.currentUser.uid}`)
       await updateDoc(userDoc, { pp: url })
       dispatch({ type: 'SET_PROFILEPICTURE', profilePicture: url })
-
     }
   }
-
-
 
   const changeUsername = async () => {
     if (username.length < 6) {
@@ -62,10 +63,9 @@ const dispatch = useDispatch()
       const docRef = doc(firestore, `users/${auth.currentUser?.uid}`)
 
       await updateProfile(auth.currentUser, {
-        displayName: username
+        displayName: username,
       })
       await updateDoc(docRef, { username: username })
-      
     } catch (error) {
       console.error(error)
       Alert.alert('Hata', 'Kullanici adini guncelleme basarisiz oldu')
@@ -103,22 +103,21 @@ const dispatch = useDispatch()
       })
   }
 
-
   const SignOut = async () => {
     try {
-      await auth.signOut();
-      dispatch({ type: 'SET_USER', user: null });
-      navigation.replace('SignIn');
+      await auth.signOut()
+      dispatch({ type: 'SET_USER', user: null })
+      navigation.replace('SignIn')
     } catch (error) {
-      console.error(error);
+      console.error(error)
     }
-  };
+  }
 
   return (
     <SafeAreaView style={styles.View}>
-      <TouchableOpacity style={{marginTop:30}} onPress={uploadImage}>
-                <Image source={{ uri: profilePicture }} style={styles.pp4} />
-                </TouchableOpacity>
+      <TouchableOpacity style={{ marginTop: 30 }} onPress={uploadImage}>
+        <Image source={{ uri: profilePicture }} style={styles.pp4} />
+      </TouchableOpacity>
       <View>
         <Text style={styles.Text5}>Email: {auth.currentUser?.email}</Text>
 
@@ -126,7 +125,7 @@ const dispatch = useDispatch()
           value={username}
           onChangeText={setUsername}
           style={styles.TextInput5}
-/>
+        />
         <TouchableOpacity onPress={changeUsername} style={styles.Button4}>
           <Text style={styles.ButtonText2}>Kullanici adini degistir</Text>
         </TouchableOpacity>
@@ -137,8 +136,6 @@ const dispatch = useDispatch()
           secureTextEntry
           style={styles.TextInput5}
           placeholderTextColor={colorPalette.white}
-
-
         />
         <TextInput
           value={password}
@@ -147,9 +144,8 @@ const dispatch = useDispatch()
           secureTextEntry
           style={styles.TextInput5}
           placeholderTextColor={colorPalette.white}
-
         />
-                <TouchableOpacity onPress={changePassword} style={styles.Button4}>
+        <TouchableOpacity onPress={changePassword} style={styles.Button4}>
           <Text style={styles.ButtonText2}>Sifreni degistir</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={SignOut} style={styles.Button5}>

@@ -1,13 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-} from 'react-native'
-import {  onValue, ref } from 'firebase/database'
+import { View, Text, Image, TouchableOpacity } from 'react-native'
+import { onValue, ref } from 'firebase/database'
 import { auth, database, firestore } from '../../firebaseConfig'
-import {  doc, getDoc,  } from 'firebase/firestore'
+import { doc, getDoc } from 'firebase/firestore'
 import { useSelector } from 'react-redux'
 import { RootState } from '../Store'
 import { styles } from '../Style'
@@ -18,55 +13,48 @@ export const Drawer = ({ isOpen, toggleDrawer }) => {
   const [photoURL, setPhotoURL] = useState([])
   const [usernames, setUsernames] = useState([])
   const roomId = useSelector((state: RootState) => state.roomId)
- 
+
   useEffect(() => {
-    const usersRef = ref(database, `rooms/${roomId}/users`);
+    const usersRef = ref(database, `rooms/${roomId}/users`)
     onValue(usersRef, (snapshot) => {
-      const users = snapshot.val() || {};
-  
-    
-          const fetchedUsers = []
-          const fetchedPhotoURLs = []
-          const fetchedUsernames = []
-    
-          for (const userId in users) {
-            if (users[userId] === false) continue
-    
-            getDoc(doc(firestore, `users/${userId}`)).then((userDoc) => {
-              const pp = userDoc.data().pp
-              const username = userDoc.data().username
-    
-              fetchedUsers.push(userId)
-              fetchedPhotoURLs.push(pp && typeof pp === 'string' ? pp : null)
-              fetchedUsernames.push(
-                username && typeof username === 'string' ? username : null
-              )
-    
-              setUsers(fetchedUsers)
-              setPhotoURL(fetchedPhotoURLs)
-              setUsernames(fetchedUsernames)
-            })
-          }
+      const users = snapshot.val() || {}
+
+      const fetchedUsers = []
+      const fetchedPhotoURLs = []
+      const fetchedUsernames = []
+
+      for (const userId in users) {
+        if (users[userId] === false) continue
+
+        getDoc(doc(firestore, `users/${userId}`)).then((userDoc) => {
+          const pp = userDoc.data().pp
+          const username = userDoc.data().username
+
+          fetchedUsers.push(userId)
+          fetchedPhotoURLs.push(pp && typeof pp === 'string' ? pp : null)
+          fetchedUsernames.push(
+            username && typeof username === 'string' ? username : null
+          )
+
+          setUsers(fetchedUsers)
+          setPhotoURL(fetchedPhotoURLs)
+          setUsernames(fetchedUsernames)
         })
       }
-    
-    , [])
-    
-  
+    })
+  }, [])
 
-
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false)
+  const [selectedUser, setSelectedUser] = useState(null)
 
   function handleUserPress(user) {
     if (user === auth.currentUser.uid) {
-      return;
+      return
     }
 
-    setSelectedUser(user);
-    setModalVisible(true);
+    setSelectedUser(user)
+    setModalVisible(true)
   }
-    
 
   return (
     <View style={[styles.drawer, isOpen ? styles.open : styles.closed]}>
@@ -80,22 +68,24 @@ export const Drawer = ({ isOpen, toggleDrawer }) => {
           (user, index) =>
             photoURL[index] && (
               <View key={index} style={{ paddingBottom: 10 }}>
-                                <TouchableOpacity onPress={() => handleUserPress(user)}>
-
-                <View style={styles.View4}>
-                  <Image source={{ uri: photoURL[index] }} style={styles.pp3} />
-                  <Text style={styles.Text5}>{usernames[index]}</Text>
-                </View>
+                <TouchableOpacity onPress={() => handleUserPress(user)}>
+                  <View style={styles.View4}>
+                    <Image
+                      source={{ uri: photoURL[index] }}
+                      style={styles.pp3}
+                    />
+                    <Text style={styles.Text5}>{usernames[index]}</Text>
+                  </View>
                 </TouchableOpacity>
               </View>
             )
         )}
       </View>
       <UserOptions
-      modalVisible={modalVisible}
-      setModalVisible={setModalVisible}
-      selectedUser={selectedUser}
-    />
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+        selectedUser={selectedUser}
+      />
     </View>
   )
 }

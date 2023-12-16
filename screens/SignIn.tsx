@@ -17,7 +17,7 @@ export default function SignIn() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const dispatch = useDispatch()
-  const profilePicture = useSelector((state: RootState) => state.profilePicture);
+  const profilePicture = useSelector((state: RootState) => state.profilePicture)
 
   const signIn = async () => {
     try {
@@ -25,17 +25,20 @@ export default function SignIn() {
         auth,
         email,
         password
-      ).then( )
-      
+      ).then()
+
       if (!userCredential.user.emailVerified) {
         alert('Lutfen giris yapmadan once mailini dogrula.')
         auth.signOut()
+      } else if (profilePicture === '') {
+        const docSnap = await getDoc(
+          doc(firestore, `users/${auth.currentUser?.uid}`)
+        )
+        dispatch({
+          type: 'SET_PROFILEPICTURE',
+          profilePicture: docSnap.data().pp,
+        })
       }
-else if (profilePicture==='') {
-  const docSnap = await getDoc(doc(firestore, `users/${auth.currentUser?.uid}`))
-  dispatch({ type: 'SET_PROFILEPICTURE', profilePicture:  (docSnap.data().pp)
-})
-}
     } catch (error) {
       console.error(error)
     }

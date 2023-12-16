@@ -1,15 +1,15 @@
-import { combineReducers, createStore } from 'redux';
-import { persistStore, persistReducer } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
+import { combineReducers, createStore } from 'redux'
+import { persistStore, persistReducer } from 'redux-persist'
+import storage from 'redux-persist/lib/storage'
 
 export interface RootState {
-  roomId: string;
-  friendId: string;
-  chatId: string;
-  userId: string;
-  profilePicture: string;
-  email: string;
-  user: any | null;
+  roomId: string
+  friendId: string
+  chatId: string
+  userId: string
+  profilePicture: string
+  email: string
+  user: any | null
 }
 
 const initialState: RootState = {
@@ -17,10 +17,10 @@ const initialState: RootState = {
   friendId: '',
   chatId: '',
   userId: '',
-  profilePicture:'',
+  profilePicture: '',
   email: '',
   user: null,
-};
+}
 
 const createReducer =
   (key, defaultValue) =>
@@ -40,15 +40,15 @@ const rootReducer = combineReducers({
   profilePicture: createReducer('profilePicture', initialState.profilePicture),
   email: createReducer('email', initialState.email),
   user: createReducer('user', initialState.user),
-});
+})
 
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: ['user','profilePicture'],
-};
+  whitelist: ['user', 'profilePicture'],
+}
 
-const persistedReducer = persistReducer(persistConfig, rootReducer);
+const persistedReducer = persistReducer(persistConfig, rootReducer)
 
-export const store = createStore(persistedReducer);
-export const persistor = persistStore(store);
+export const store = createStore(persistedReducer)
+export const persistor = persistStore(store)

@@ -56,7 +56,9 @@ export default function Message() {
   }
   useEffect(() => {
     const fetchPP = async () => {
-      const docSnap = await getDoc(doc(firestore, `users/${auth.currentUser?.uid}`))
+      const docSnap = await getDoc(
+        doc(firestore, `users/${auth.currentUser?.uid}`)
+      )
       setImageUrl(docSnap.data().pp)
     }
 

@@ -1,48 +1,87 @@
-import React from 'react';
-import { Modal, Text, TouchableHighlight, View, TouchableOpacity } from 'react-native';
-import { colorPalette, styles } from '../Style';
-import { doc, updateDoc, arrayRemove, arrayUnion, collection, query, where, getDocs, deleteDoc, getDoc, setDoc,  } from 'firebase/firestore';
-import { firestore, auth } from '../../firebaseConfig';
+import React from 'react'
+import {
+  Modal,
+  Text,
+  TouchableHighlight,
+  View,
+  TouchableOpacity,
+} from 'react-native'
+import { colorPalette, styles } from '../Style'
+import { doc, collection, getDocs, deleteDoc } from 'firebase/firestore'
+import { firestore, auth } from '../../firebaseConfig'
 
-export const UserOptions = ({ modalVisible, setModalVisible, selectedUser,chatRoomId ,  }) => {
+export const UserOptions = ({
+  modalVisible,
+  setModalVisible,
+  selectedUser,
+  chatRoomId,
+}) => {
+  async function deleteChat() {
+    const chatRef = collection(
+      firestore,
+      `chatRooms/${chatRoomId}/${auth.currentUser?.uid}`
+    )
 
-  async function removeChatRoom() {
-    
-
+    const querySnapshot = await getDocs(chatRef)
+    querySnapshot.forEach((doc) => {
+      deleteDoc(doc.ref)
+    })
   }
-
-  async function Block(selectedUser) {
-
+  async function removeFriend() {
+    const chatRoomRef = doc(
+      firestore,
+      `users/${auth.currentUser.uid}/friends/${selectedUser}`
+    )
+    const chatRoomRef2 = doc(
+      firestore,
+      `users/${selectedUser}/friends/${auth.currentUser.uid}`
+    )
+    await deleteDoc(chatRoomRef)
+    await deleteDoc(chatRoomRef2)
   }
-
-
 
   return (
-    
     <Modal
       animationType="slide"
       transparent={true}
       visible={modalVisible}
       onRequestClose={() => {
-        setModalVisible(false);
+        setModalVisible(false)
       }}
     >
-      <TouchableOpacity style={{flex: 1, zIndex:-1}} onPress={() => setModalVisible(false)}/>
-      <View style={{backgroundColor:colorPalette.blackL, padding: 20, borderRadius: 10, alignItems: 'center', maxHeight: 400, marginTop: 'auto'}}>
-          <TouchableHighlight
-            style={styles.Button}
-            onPress={() => { removeChatRoom(); setModalVisible(false); }}
-          >
-            <Text>Konusmayi sil</Text>
-          </TouchableHighlight>
-          <TouchableHighlight
-            style={styles.Button}
-            onPress={() => { Block(selectedUser); setModalVisible(false); }}
-          >
-            <Text>Engelle</Text>
-          </TouchableHighlight>
-          
-        </View>
+      <TouchableOpacity
+        style={{ flex: 1, zIndex: -1 }}
+        onPress={() => setModalVisible(false)}
+      />
+      <View
+        style={{
+          backgroundColor: colorPalette.blackL,
+          padding: 20,
+          borderRadius: 10,
+          alignItems: 'center',
+          maxHeight: 400,
+          marginTop: 'auto',
+        }}
+      >
+        <TouchableHighlight
+          style={styles.Button}
+          onPress={() => {
+            removeFriend()
+            setModalVisible(false)
+          }}
+        >
+          <Text>Arkadaşlığı sil</Text>
+        </TouchableHighlight>
+        <TouchableHighlight
+          style={styles.Button}
+          onPress={() => {
+            deleteChat()
+            setModalVisible(false)
+          }}
+        >
+          <Text>Konusmayi sil</Text>
+        </TouchableHighlight>
+      </View>
     </Modal>
-  );
-};
+  )
+}

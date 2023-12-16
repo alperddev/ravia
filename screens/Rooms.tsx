@@ -15,24 +15,27 @@ import { get, ref, set } from 'firebase/database'
 import { styles } from '../components/Style'
 
 export default function Rooms({ navigation }) {
-  const [rooms, setRooms] = useState([]);
+  const [rooms, setRooms] = useState([])
 
   const dispatch = useDispatch()
 
   useEffect(() => {
     const fetchRooms = async () => {
-      const roomsRef = collection(firestore, `users/${auth.currentUser.uid}/rooms`);
-      const roomsSnap = await getDocs(roomsRef);
-    
-      const roomsList = roomsSnap.docs.map(doc => ({
+      const roomsRef = collection(
+        firestore,
+        `users/${auth.currentUser.uid}/rooms`
+      )
+      const roomsSnap = await getDocs(roomsRef)
+
+      const roomsList = roomsSnap.docs.map((doc) => ({
         id: doc.id,
-      }));
-    
-      setRooms(roomsList);
+      }))
+
+      setRooms(roomsList)
     }
-    
-    fetchRooms();
-  }, []);
+
+    fetchRooms()
+  }, [])
 
   const joinRoom = async (roomId) => {
     if (roomId === '') {
@@ -46,16 +49,24 @@ export default function Rooms({ navigation }) {
       const bannedUsers = snapshot.val().banned || {}
       if (bannedUsers[auth.currentUser.uid]) {
         Alert.alert('Hata', 'Bu odadan engellendiniz.')
-      }
-      else {
+      } else {
         dispatch({ type: 'SET_ROOMID', roomId })
-        const userRoomRef = doc(firestore, `users/${auth.currentUser.uid}/rooms/${roomId}`);
-        const userRoomSnap = await getDoc(userRoomRef);
-        if (userRoomSnap.exists() && userRoomSnap.data().Admins === auth.currentUser.uid) {
-          navigation.navigate('Admin');
+        const userRoomRef = doc(
+          firestore,
+          `users/${auth.currentUser.uid}/rooms/${roomId}`
+        )
+        const userRoomSnap = await getDoc(userRoomRef)
+        if (
+          userRoomSnap.exists() &&
+          userRoomSnap.data().Admins === auth.currentUser.uid
+        ) {
+          navigation.navigate('Admin')
         } else {
-          await setDoc(userRoomRef, { Users: auth.currentUser.uid });
-          const viewerRef = ref(database, `rooms/${roomId}/users/${auth.currentUser.uid}`)
+          await setDoc(userRoomRef, { Users: auth.currentUser.uid })
+          const viewerRef = ref(
+            database,
+            `rooms/${roomId}/users/${auth.currentUser.uid}`
+          )
           await set(viewerRef, false)
           navigation.navigate('Viewer')
         }
@@ -68,17 +79,16 @@ export default function Rooms({ navigation }) {
   return (
     <SafeAreaView style={styles.View}>
       <View style={styles.View}>
-      
         <ScrollView>
-        {rooms.map((room, index) => (
-          <View key={index} style={{ paddingBottom: 10 }}>
-            <TouchableOpacity onPress={() => joinRoom(room.id)}>
-              <View style={styles.View4}>
-                <Text style={styles.Text5}>{room.id}</Text>
-              </View>
-            </TouchableOpacity>
-          </View>
-        ))}
+          {rooms.map((room, index) => (
+            <View key={index} style={{ paddingBottom: 10 }}>
+              <TouchableOpacity onPress={() => joinRoom(room.id)}>
+                <View style={styles.View4}>
+                  <Text style={styles.Text5}>{room.id}</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          ))}
         </ScrollView>
       </View>
     </SafeAreaView>

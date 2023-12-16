@@ -7,7 +7,13 @@ import {
   KeyboardAvoidingView,
 } from 'react-native'
 import { auth, firestore } from '../firebaseConfig'
-import {  collection, query, onSnapshot, addDoc, orderBy } from 'firebase/firestore'
+import {
+  collection,
+  query,
+  onSnapshot,
+  addDoc,
+  orderBy,
+} from 'firebase/firestore'
 import { styles, colorPalette } from '../components/Style'
 import { Ionicons } from '@expo/vector-icons'
 import Message from '../components/Message/PrivateMessage'
@@ -15,7 +21,6 @@ import { useSelector } from 'react-redux'
 import { RootState } from '../components/Store'
 
 export default function Chat() {
-
   const username = auth.currentUser?.displayName
 
   const [messages, setMessages] = useState([])
@@ -29,16 +34,18 @@ export default function Chat() {
 
   useEffect(() => {
     if (roomId) {
-      const messagesRef = collection(firestore, `chatRooms/${roomId}/${auth.currentUser?.uid}`)
+      const messagesRef = collection(
+        firestore,
+        `chatRooms/${roomId}/${auth.currentUser?.uid}`
+      )
       const q = query(messagesRef, orderBy('timestamp'))
       const unsubscribe = onSnapshot(q, (snapshot) => {
         let items = []
         snapshot.forEach((doc) => {
-          items.push({id: doc.id, ...doc.data()})
+          items.push({ id: doc.id, ...doc.data() })
         })
         setMessages(items)
-        flatListRef.current?.scrollToEnd({animated: true})
-
+        flatListRef.current?.scrollToEnd({ animated: true })
       })
       return () => unsubscribe()
     }
@@ -46,38 +53,42 @@ export default function Chat() {
 
   const sendMessage = async () => {
     setNewMessage('')
-  
+
     if (roomId && newMessage) {
-      const currentUserMessagesRef = collection(firestore, `chatRooms/${roomId}/${auth.currentUser?.uid}`)
-      const friendMessagesRef = collection(firestore, `chatRooms/${roomId}/${friendId}`)
-      
+      const currentUserMessagesRef = collection(
+        firestore,
+        `chatRooms/${roomId}/${auth.currentUser?.uid}`
+      )
+      const friendMessagesRef = collection(
+        firestore,
+        `chatRooms/${roomId}/${friendId}`
+      )
+
       const message = {
         text: newMessage,
         username: username,
         photoURL: profilePicture,
         timestamp: Date.now(),
       }
-  
+
       await addDoc(currentUserMessagesRef, message)
       await addDoc(friendMessagesRef, message)
     }
   }
 
-
   return (
-    <View style={{flex:1, paddingTop: 20, backgroundColor:colorPalette.black }}>
-      <ScrollView  
-   style={{height:100, flexDirection:"column-reverse"}}>
-             <Message messages={messages} username={username} />
-
+    <View
+      style={{ flex: 1, paddingTop: 20, backgroundColor: colorPalette.black }}
+    >
+      <ScrollView style={{ height: 100, flexDirection: 'column-reverse' }}>
+        <Message messages={messages} username={username} />
       </ScrollView>
-      
+
       <KeyboardAvoidingView
         style={{
           alignSelf: 'center',
           alignContent: 'center',
           justifyContent: 'center',
-          
         }}
       >
         <TextInput

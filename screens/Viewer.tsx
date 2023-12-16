@@ -24,7 +24,26 @@ export default function Viewer({ navigation }) {
 
   useEffect(() => {
     if (roomId && auth.currentUser) {
-      const viewerRef = ref(database, `rooms/${roomId}/users/${auth.currentUser.uid}`)
+      const usersRef = ref(database, `rooms/${roomId}/users`)
+
+      const listener = onValue(usersRef, (snapshot) => {
+        const data = snapshot.val()
+        if (!data.hasOwnProperty(auth.currentUser.uid)) {
+          navigation.navigate('Home')
+        }
+      })
+
+      return () => {
+        listener()
+      }
+    }
+  }, [])
+  useEffect(() => {
+    if (roomId && auth.currentUser) {
+      const viewerRef = ref(
+        database,
+        `rooms/${roomId}/users/${auth.currentUser.uid}`
+      )
       set(viewerRef, true)
 
       return () => {
@@ -53,9 +72,10 @@ export default function Viewer({ navigation }) {
       <TouchableOpacity onPress={toggleDrawer}>
         <UserList />
       </TouchableOpacity>
-{//<ViewerPlayer />
-}
-   <Message />
+      {
+        //<ViewerPlayer />
+      }
+      <Message />
       <TouchableOpacity onPress={copyToClipboard}>
         <View
           style={{

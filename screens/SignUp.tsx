@@ -50,7 +50,11 @@ export default function SignUp({ navigation }) {
         Alert.alert(
           'Dogrulama maili gonderildi. Lutfen gelen kutunu kontrol et.'
         )
-        dispatch({ type: 'SET_PROFILEPICTURE', profilePicture: 'https://firebasestorage.googleapis.com/v0/b/youaretech-ravia.appspot.com/o/pp.png?alt=media&token=c399cce8-6805-48c7-bae0-3e603973bdef' })
+        dispatch({
+          type: 'SET_PROFILEPICTURE',
+          profilePicture:
+            'https://firebasestorage.googleapis.com/v0/b/youaretech-ravia.appspot.com/o/pp.png?alt=media&token=c399cce8-6805-48c7-bae0-3e603973bdef',
+        })
         navigation.navigate('SignIn')
       }
     } catch (error) {
@@ -70,7 +74,6 @@ export default function SignUp({ navigation }) {
           keyboardType="email-address"
           textContentType="emailAddress"
           autoFocus={true}
-
         />
         <TextInput
           style={styles.TextInput}
@@ -79,7 +82,6 @@ export default function SignUp({ navigation }) {
           value={password}
           secureTextEntry
           textContentType="password"
-
           autoCapitalize="none"
         />
         <TextInput
@@ -90,7 +92,6 @@ export default function SignUp({ navigation }) {
           secureTextEntry
           autoCapitalize="none"
           textContentType="password"
-
         />
         <TouchableOpacity onPress={signUp} style={styles.Button}>
           <Text style={styles.ButtonText}>Hesap Olustur</Text>

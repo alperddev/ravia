@@ -6,11 +6,10 @@ import {
   Text,
   Image,
   TextInput,
-
 } from 'react-native'
-import { get, ref,  set, onValue } from 'firebase/database'
+import { ref, set, onValue } from 'firebase/database'
 import { auth, database, firestore } from '../../firebaseConfig'
-import {  doc, getDoc,  updateDoc } from 'firebase/firestore'
+import { doc, getDoc, updateDoc } from 'firebase/firestore'
 import { useSelector } from 'react-redux'
 import { RootState } from '../Store'
 import { colorPalette, styles } from '../Style'
@@ -23,54 +22,48 @@ export const Drawer = ({ isOpen, toggleDrawer }) => {
   const roomId = useSelector((state: RootState) => state.roomId)
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
- 
-useEffect(() => {
-  const usersRef = ref(database, `rooms/${roomId}/users`);
-  onValue(usersRef, (snapshot) => {
-    const users = snapshot.val() || {};
+  const [modalVisible, setModalVisible] = useState(false)
+  const [selectedUser, setSelectedUser] = useState(null)
 
-  
-        const fetchedUsers = []
-        const fetchedPhotoURLs = []
-        const fetchedUsernames = []
-  
-        for (const userId in users) {
-          if (users[userId] === false) continue
-  
-          getDoc(doc(firestore, `users/${userId}`)).then((userDoc) => {
-            const pp = userDoc.data().pp
-            const username = userDoc.data().username
-  
-            fetchedUsers.push(userId)
-            fetchedPhotoURLs.push(pp && typeof pp === 'string' ? pp : null)
-            fetchedUsernames.push(
-              username && typeof username === 'string' ? username : null
-            )
-  
-            setUsers(fetchedUsers)
-            setPhotoURL(fetchedPhotoURLs)
-            setUsernames(fetchedUsernames)
-          })
-        }
-      })
-    }
-    
-  
-  , [])
-  
+  useEffect(() => {
+    const usersRef = ref(database, `rooms/${roomId}/users`)
+    onValue(usersRef, (snapshot) => {
+      const users = snapshot.val() || {}
 
+      const fetchedUsers = []
+      const fetchedPhotoURLs = []
+      const fetchedUsernames = []
+
+      for (const userId in users) {
+        if (users[userId] === false) continue
+
+        getDoc(doc(firestore, `users/${userId}`)).then((userDoc) => {
+          const pp = userDoc.data().pp
+          const username = userDoc.data().username
+
+          fetchedUsers.push(userId)
+          fetchedPhotoURLs.push(pp && typeof pp === 'string' ? pp : null)
+          fetchedUsernames.push(
+            username && typeof username === 'string' ? username : null
+          )
+
+          setUsers(fetchedUsers)
+          setPhotoURL(fetchedPhotoURLs)
+          setUsernames(fetchedUsernames)
+        })
+      }
+    })
+  }, [])
 
   function handleUserPress(user) {
     if (user === auth.currentUser.uid) {
-      return;
+      return
     }
 
-    setSelectedUser(user);
-    setModalVisible(true);
+    setSelectedUser(user)
+    setModalVisible(true)
   }
-    
+
   function handlePassword() {
     if (roomId && auth.currentUser) {
       const passwordRef = ref(database, `rooms/${roomId}/password`)
@@ -78,16 +71,17 @@ useEffect(() => {
     }
   }
   const handleName = async () => {
-    const roomRefGeneral = doc(firestore, `playRooms/${roomId}`);
-        await updateDoc(roomRefGeneral, { Name: name });
-        alert('Update successful!');
-}
+    const roomRefGeneral = doc(firestore, `playRooms/${roomId}`)
+    await updateDoc(roomRefGeneral, { Name: name })
+    alert('Update successful!')
+  }
 
   return (
     <View style={[styles.drawer, isOpen ? styles.open : styles.closed]}>
-      <TouchableOpacity       onPress={toggleDrawer}
- style={[styles.drawer3, isOpen ? styles.open : styles.closed]}
-/>
+      <TouchableOpacity
+        onPress={toggleDrawer}
+        style={[styles.drawer3, isOpen ? styles.open : styles.closed]}
+      />
       <ScrollView
         style={[styles.drawer2, isOpen ? styles.open : styles.closed]}
       >
@@ -127,15 +121,13 @@ useEffect(() => {
         <TouchableOpacity style={styles.Button3} onPress={handleName}>
           <Text style={styles.ButtonText}>Oda Ismini Ayarla</Text>
         </TouchableOpacity>
-
       </ScrollView>
       <UserOptions
-      modalVisible={modalVisible}
-      setModalVisible={setModalVisible}
-      selectedUser={selectedUser}
-      roomId={roomId}
-    />
-
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+        selectedUser={selectedUser}
+        roomId={roomId}
+      />
     </View>
   )
 }
