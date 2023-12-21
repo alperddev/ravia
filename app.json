@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "b534b3f4-193d-4fd4-a5a3-573b5fe428ef"
+      }
+    },
+    "android": {
+      "package": "com.youaretech.ravia"
+    }
+  }
+}
