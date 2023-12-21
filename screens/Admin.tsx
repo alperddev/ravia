@@ -10,6 +10,7 @@ import { Drawer } from '../components/Drawer/DrawerAdmin'
 import { colorPalette, styles } from '../components/Style'
 import { Ionicons } from '@expo/vector-icons'
 import * as Clipboard from 'expo-clipboard'
+import AdminPlayer from '../components/Player/PlayerAdmin'
 
 export default function Admin({ navigation }) {
   const roomId = useSelector((state: RootState) => state.roomId)
@@ -58,9 +59,9 @@ export default function Admin({ navigation }) {
       <TouchableOpacity onPress={toggleDrawer}>
         <UserList />
       </TouchableOpacity>
-      {
-        //<AdminPlayer />
-      }
+
+      <AdminPlayer />
+
       <Message />
       <TouchableOpacity onPress={copyToClipboard}>
         <View

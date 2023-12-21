@@ -1,12 +1,10 @@
 import 'react-native-gesture-handler'
-
 import React, { useState, useEffect } from 'react'
 import { Provider, useSelector, useDispatch } from 'react-redux'
 import { PersistGate } from 'redux-persist/integration/react'
 import { NavigationContainer } from '@react-navigation/native'
-import { createStackNavigator } from '@react-navigation/stack'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { onAuthStateChanged } from 'firebase/auth'
-
 import { auth } from './firebaseConfig'
 import { View, ActivityIndicator } from 'react-native'
 import Home from './screens/Home'
@@ -21,7 +19,9 @@ import Chat from './screens/Chat'
 import Chats from './screens/Chats'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { MaterialIcons } from '@expo/vector-icons'
-const Stack = createStackNavigator()
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
+
+const Stack = createNativeStackNavigator()
 const Tab = createBottomTabNavigator()
 
 function HomeTabs() {
@@ -31,7 +31,11 @@ function HomeTabs() {
         headerShown: false,
         tabBarActiveTintColor: colorPalette.white,
         tabBarInactiveTintColor: colorPalette.blackL,
-        tabBarStyle: { backgroundColor: colorPalette.black },
+        tabBarStyle: {
+          backgroundColor: colorPalette.black,
+          borderWidth: 1,
+          borderColor: colorPalette.black,
+        },
         tabBarShowLabel: false,
       }}
     >
@@ -56,7 +60,7 @@ function HomeTabs() {
             <MaterialIcons
               name="chat"
               color={focused ? colorPalette.white : colorPalette.blackL}
-              size={focused ? 28 : 26}
+              size={focused ? 28 : 24}
             />
           ),
         }}
@@ -69,7 +73,7 @@ function HomeTabs() {
             <MaterialIcons
               name="person"
               color={focused ? colorPalette.white : colorPalette.blackL}
-              size={focused ? 28 : 26}
+              size={focused ? 28 : 24}
             />
           ),
         }}
@@ -85,6 +89,8 @@ function HomeStack() {
         headerTintColor: colorPalette.white,
         headerStyle: { backgroundColor: colorPalette.black },
         headerTitleAlign: 'center',
+        navigationBarHidden: true,
+        statusBarColor: '#24232B',
       }}
     >
       <Stack.Screen
@@ -124,6 +130,8 @@ function AuthStack() {
         headerStyle: {},
         headerTitleAlign: 'center',
         headerShown: false,
+        navigationBarHidden: true,
+        statusBarColor: '#24232B',
       }}
     >
       <Stack.Screen name="SignUp" component={SignUp} />
@@ -170,10 +178,12 @@ function RootNavigator() {
 
 export default function App() {
   return (
-    <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-        <RootNavigator />
-      </PersistGate>
-    </Provider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <Provider store={store}>
+        <PersistGate loading={null} persistor={persistor}>
+          <RootNavigator />
+        </PersistGate>
+      </Provider>
+    </GestureHandlerRootView>
   )
 }

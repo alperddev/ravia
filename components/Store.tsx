@@ -1,6 +1,6 @@
 import { combineReducers, createStore } from 'redux'
 import { persistStore, persistReducer } from 'redux-persist'
-import storage from 'redux-persist/lib/storage'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 export interface RootState {
   roomId: string
@@ -44,7 +44,7 @@ const rootReducer = combineReducers({
 
 const persistConfig = {
   key: 'root',
-  storage,
+  storage: AsyncStorage,
   whitelist: ['user', 'profilePicture'],
 }
 

@@ -10,6 +10,7 @@ import { Drawer } from '../components/Drawer/DrawerViewer'
 import { colorPalette, styles } from '../components/Style'
 import * as Clipboard from 'expo-clipboard'
 import { Ionicons } from '@expo/vector-icons'
+import ViewerPlayer from '../components/Player/PlayerViewer'
 
 export default function Viewer({ navigation }) {
   const roomId = useSelector((state: RootState) => state.roomId)
@@ -56,7 +57,7 @@ export default function Viewer({ navigation }) {
     const usersRef = ref(database, `rooms/${roomId}/users`)
     const checkUserPresence = (snapshot) => {
       if (!snapshot.hasChild(auth.currentUser.uid)) {
-        navigation.navigate('Join')
+        navigation.navigate('Home')
       }
     }
 
@@ -72,9 +73,8 @@ export default function Viewer({ navigation }) {
       <TouchableOpacity onPress={toggleDrawer}>
         <UserList />
       </TouchableOpacity>
-      {
-        //<ViewerPlayer />
-      }
+      <ViewerPlayer />
+
       <Message />
       <TouchableOpacity onPress={copyToClipboard}>
         <View
