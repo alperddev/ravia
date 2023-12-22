@@ -1,4 +1,3 @@
-import 'react-native-gesture-handler'
 import React, { useState, useEffect } from 'react'
 import { Provider, useSelector, useDispatch } from 'react-redux'
 import { PersistGate } from 'redux-persist/integration/react'
@@ -19,7 +18,6 @@ import Chat from './screens/Chat'
 import Chats from './screens/Chats'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { MaterialIcons } from '@expo/vector-icons'
-import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
 const Stack = createNativeStackNavigator()
 const Tab = createBottomTabNavigator()
@@ -178,12 +176,11 @@ function RootNavigator() {
 
 export default function App() {
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
           <RootNavigator />
         </PersistGate>
       </Provider>
-    </GestureHandlerRootView>
+    
   )
 }
